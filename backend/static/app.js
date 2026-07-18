@@ -54,12 +54,101 @@ const tourNotice = document.querySelector("[data-tour-notice]");
 const closeTourButton = document.querySelector("[data-close-tour]");
 const siteHeader = document.querySelector("[data-site-header]");
 const heroSection = document.querySelector("[data-hero]");
+const toastContainer = document.querySelector("[data-toast-container]");
+const scrollProgress = document.querySelector("[data-scroll-progress]");
 
 // ----- State -----
 
 let availableProperties = [];
 let lastDialogTrigger = null;
 let catalogRequestController = null;
+
+// ----- Feature detection helpers -----
+
+const prefersReducedMotion = () =>
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const supportsViewTransitions = () =>
+  typeof document !== "undefined" && "startViewTransition" in document;
+
+// ----- Toast notification system -----
+
+function ensureToastContainer() {
+  if (toastContainer && toastContainer.isConnected) return toastContainer;
+  let container = document.querySelector("[data-toast-container]");
+  if (!container) {
+    container = document.createElement("div");
+    container.className = "toast-stack";
+    container.setAttribute("data-toast-container", "");
+    container.setAttribute("aria-live", "polite");
+    container.setAttribute("aria-atomic", "true");
+    document.body.appendChild(container);
+  }
+  return container;
+}
+
+function createToast(variant, message, durationMs = 4000) {
+  const container = ensureToastContainer();
+  if (!container) return null;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast--${variant || "info"}`;
+  toast.setAttribute("role", variant === "error" ? "alert" : "status");
+
+  const text = document.createElement("span");
+  text.className = "toast__message";
+  text.textContent = String(message ?? "");
+  toast.append(text);
+
+  const dismiss = document.createElement("button");
+  dismiss.type = "button";
+  dismiss.className = "toast__dismiss";
+  dismiss.setAttribute("aria-label", "Dismiss notification");
+  dismiss.textContent = "×";
+  dismiss.addEventListener("click", () => removeToast(toast));
+  toast.append(dismiss);
+
+  container.append(toast);
+  // Trigger enter animation on next frame.
+  requestAnimationFrame(() => toast.classList.add("is-visible"));
+
+  if (durationMs > 0) {
+    window.setTimeout(() => removeToast(toast), durationMs);
+  }
+  return toast;
+}
+
+function removeToast(toast) {
+  if (!toast || !toast.parentNode) return;
+  toast.classList.remove("is-visible");
+  toast.classList.add("is-leaving");
+  window.setTimeout(() => toast.remove(), 240);
+}
+
+const toast = {
+  success: (msg, ms) => createToast("success", msg, ms),
+  error: (msg, ms) => createToast("error", msg, ms),
+  info: (msg, ms) => createToast("info", msg, ms),
+};
+
+// ----- View Transitions wrapper -----
+
+function withViewTransition(update) {
+  if (typeof update !== "function") return undefined;
+  if (supportsViewTransitions() && !prefersReducedMotion()) {
+    try {
+      return document.startViewTransition(() => {
+        update();
+      });
+    } catch (error) {
+      // Fall through to direct update if the API throws.
+      console.warn("View transition failed; falling back.", error);
+    }
+  }
+  update();
+  return undefined;
+}
 
 // ----- Status / tour type labels (locale-aware) -----
 
@@ -92,7 +181,9 @@ async function loadSimilarProperties(propertyId) {
 
     catalog.setAttribute("aria-busy", "false");
     if (properties.length) {
-      catalog.replaceChildren(...properties.map(createPropertyCard));
+      withViewTransition(() => {
+        catalog.replaceChildren(...properties.map(createPropertyCard));
+      });
       if (listingCount) {
         const word = pluralize(properties.length, "word.similar");
         listingCount.textContent = t("summary.similar", { count: properties.length, word });
@@ -357,6 +448,7 @@ async function loadProperties() {
     showCatalogMessage(query.error);
     populatePropertySelect([]);
     if (listingCount) listingCount.textContent = I18N.translate("catalog.priceError");
+    toast.error(query.error);
     return;
   }
 
@@ -377,7 +469,9 @@ async function loadProperties() {
     availableProperties = properties;
     catalog.setAttribute("aria-busy", "false");
     if (properties.length) {
-      catalog.replaceChildren(...properties.map(createPropertyCard));
+      withViewTransition(() => {
+        catalog.replaceChildren(...properties.map(createPropertyCard));
+      });
     } else {
       showCatalogMessage(I18N.translate("catalog.empty"));
     }
@@ -395,6 +489,7 @@ async function loadProperties() {
       propertySelect.replaceChildren(new Option(I18N.translate("catalog.unavailableShort"), ""));
       propertySelect.disabled = true;
     }
+    toast.error(I18N.translate("catalog.unavailable"));
   } finally {
     if (catalogRequestController === requestController) catalogRequestController = null;
   }
@@ -433,13 +528,13 @@ async function submitInquiry(event) {
     if (!response.ok) throw new Error(payload.error?.message || I18N.translate("inquiry.error"));
 
     setFormStatus(payload.message || I18N.translate("inquiry.success"), "success");
+    toast.success(payload.message || I18N.translate("inquiry.success"));
     inquiryForm.reset();
     populatePropertySelect(availableProperties);
   } catch (error) {
-    setFormStatus(
-      error instanceof Error ? error.message : I18N.translate("inquiry.error"),
-      "error",
-    );
+    const message = error instanceof Error ? error.message : I18N.translate("inquiry.error");
+    setFormStatus(message, "error");
+    toast.error(message);
   } finally {
     submitButton?.removeAttribute("disabled");
   }
@@ -564,9 +659,10 @@ hookModelEvents();
 
 function observeMotionElements() {
   if (!window.IntersectionObserver) {
-    document.querySelectorAll(".motion-reveal, .stagger").forEach((el) => {
+    document.querySelectorAll(".motion-reveal, .stagger, [data-reveal]").forEach((el) => {
       el.classList.add("is-visible");
     });
+    applyStaggerDelays();
     return;
   }
   const observer = new IntersectionObserver(
@@ -580,22 +676,130 @@ function observeMotionElements() {
     },
     { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
   );
-  document.querySelectorAll(".motion-reveal, .stagger").forEach((el) => {
+  document.querySelectorAll(".motion-reveal, .stagger, [data-reveal]").forEach((el) => {
     el.classList.add("motion-reveal");
     observer.observe(el);
   });
+  applyStaggerDelays();
 }
 
-// ----- Header scroll state -----
+function applyStaggerDelays(stepMs = 70) {
+  if (prefersReducedMotion()) stepMs = 0;
+  document.querySelectorAll("[data-stagger-children]").forEach((parent) => {
+    const children = Array.from(parent.children);
+    children.forEach((child, index) => {
+      child.style.setProperty("--stagger-delay", `${index * stepMs}ms`);
+      child.style.setProperty("animation-delay", `${index * stepMs}ms`);
+    });
+  });
+}
+
+// ----- Header scroll progress + state -----
 
 function configureHeaderScroll() {
   if (!siteHeader) return;
   const update = () => {
     const scrolled = window.scrollY > 32;
     siteHeader.classList.toggle("is-scrolled", scrolled);
+
+    if (scrollProgress) {
+      const scrollMax = Math.max(
+        1,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
+      const ratio = Math.max(0, Math.min(1, window.scrollY / scrollMax));
+      scrollProgress.style.setProperty("--scroll-progress", `${ratio * 100}%`);
+    }
   };
   update();
   window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update, { passive: true });
+}
+
+// ----- Active nav section highlighting -----
+
+function configureActiveNavHighlight() {
+  if (!siteNavigation) return;
+  const navLinks = Array.from(siteNavigation.querySelectorAll("a[href^='#']"));
+  if (!navLinks.length) return;
+
+  const linkByHash = new Map();
+  const sections = [];
+  navLinks.forEach((link) => {
+    const hash = link.getAttribute("href");
+    if (!hash || hash.length < 2) return;
+    const id = hash.slice(1);
+    const section = document.getElementById(id);
+    if (!section) return;
+    linkByHash.set(section, link);
+    sections.push(section);
+  });
+
+  if (!sections.length || !window.IntersectionObserver) return;
+
+  const setCurrent = (section) => {
+    navLinks.forEach((link) => link.classList.remove("is-current"));
+    const match = section ? linkByHash.get(section) : null;
+    if (match) match.classList.add("is-current");
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      // Pick the entry closest to the top of the viewport.
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible.length) {
+        setCurrent(visible[0].target);
+      }
+    },
+    { rootMargin: "-40% 0px -55% 0px", threshold: 0 },
+  );
+
+  sections.forEach((section) => observer.observe(section));
+}
+
+// ----- Smooth scroll-to-anchor (header-aware) -----
+
+function getHeaderOffset() {
+  if (!siteHeader) return 0;
+  return siteHeader.getBoundingClientRect().height || 0;
+}
+
+function configureSmoothScroll() {
+  document.addEventListener("click", (event) => {
+    const link = event.target instanceof Element ? event.target.closest("a[href^='#']") : null;
+    if (!link) return;
+    const href = link.getAttribute("href");
+    if (!href || href.length < 2 || href === "#") return;
+    const target = document.getElementById(href.slice(1));
+    if (!target) return;
+    event.preventDefault();
+    const offset = getHeaderOffset() + 16;
+    const top = target.getBoundingClientRect().top + window.scrollY - offset;
+    const behavior = prefersReducedMotion() ? "auto" : "smooth";
+    window.scrollTo({ top, behavior });
+    if (siteNavigation?.classList.contains("is-open")) {
+      menuToggle?.setAttribute("aria-expanded", "false");
+      siteNavigation.classList.remove("is-open");
+    }
+  });
+}
+
+// ----- Focus restoration polish for dialogs -----
+
+function configureDialogPolish() {
+  [inquiryDialog, tourDialog].forEach((dialog) => {
+    if (!dialog) return;
+    dialog.addEventListener("close", () => {
+      // Native focus restoration handled by the browser, but make sure the
+      // trigger (when known) regains focus and the tabindex is reset.
+      if (dialog === inquiryDialog && lastDialogTrigger) {
+        lastDialogTrigger.focus();
+        lastDialogTrigger = null;
+      }
+    });
+  });
 }
 
 // ----- Hero entrance -----
@@ -619,6 +823,17 @@ document.addEventListener("click", (event) => {
 
   const tourTrigger = event.target instanceof Element ? event.target.closest("[data-open-tour]") : null;
   if (tourTrigger && tourTrigger.dataset.propertyId) openTour(tourTrigger.dataset.propertyId);
+
+  const copyTrigger = event.target instanceof Element ? event.target.closest("[data-copy]") : null;
+  if (copyTrigger) {
+    const value = copyTrigger.dataset.copy;
+    if (value) {
+      navigator.clipboard?.writeText(value).then(
+        () => toast.success(I18N.translate("toast.copied")),
+        () => toast.error(I18N.translate("toast.copyError")),
+      );
+    }
+  }
 });
 
 closeTourButton?.addEventListener("click", closeTour);
@@ -660,7 +875,9 @@ document.addEventListener("locale:change", () => {
   // Re-render the catalog (cards carry formatted prices + translated pills),
   // re-populate the dropdown, and update the live listing summary.
   if (availableProperties.length) {
-    catalog?.replaceChildren(...availableProperties.map(createPropertyCard));
+    withViewTransition(() => {
+      catalog?.replaceChildren(...availableProperties.map(createPropertyCard));
+    });
     catalog?.setAttribute("aria-busy", "false");
     populatePropertySelect(availableProperties);
     if (listingCount) {
@@ -677,6 +894,9 @@ document.addEventListener("locale:change", () => {
 
 configureNavigation();
 configureHeaderScroll();
+configureActiveNavHighlight();
+configureSmoothScroll();
+configureDialogPolish();
 observeMotionElements();
 primeHero();
 loadProperties();

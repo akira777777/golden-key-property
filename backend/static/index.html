@@ -11,13 +11,62 @@
       content="Golden Key — международная недвижимость с персональным подбором и прозрачным сопровождением сделки."
     />
     <title data-i18n="meta.title">Golden Key — избранная недвижимость</title>
+    <link rel="canonical" href="/" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      as="image"
+      href="/static/hero-coastal-villa.png"
+      fetchpriority="high"
+    />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Golden Key — избранная недвижимость" />
+    <meta
+      property="og:description"
+      content="Golden Key — международная недвижимость с персональным подбором и прозрачным сопровождением сделки."
+    />
+    <meta property="og:url" content="/" />
+    <meta property="og:image" content="/static/hero-coastal-villa.png" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Golden Key — избранная недвижимость" />
+    <meta
+      name="twitter:description"
+      content="Golden Key — международная недвижимость с персональным подбором и прозрачным сопровождением сделки."
+    />
+    <meta name="twitter:image" content="/static/hero-coastal-villa.png" />
+
+    <!-- JSON-LD: Organization schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Golden Key Property",
+        "url": "https://example.com",
+        "logo": "/static/favicon.svg",
+        "description": "International property advisory and curated listings.",
+        "sameAs": [],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "availableLanguage": ["Russian", "English", "German", "Spanish"]
+        }
+      }
+    </script>
+
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-content" data-i18n="a11y.skip">Перейти к содержанию</a>
 
     <header class="site-header" data-site-header>
+      <div class="scroll-progress" data-scroll-progress aria-hidden="true"></div>
       <a class="brand" href="/" aria-label="Golden Key — на главную">
         <span class="brand__mark" aria-hidden="true">GK</span>
         <span class="brand__name">Golden Key</span>
@@ -185,7 +234,7 @@
             </button>
           </div>
         </form>
-        <div class="container property-grid stagger" data-catalog aria-live="polite"></div>
+        <div class="container property-grid stagger" data-stagger-children data-catalog aria-live="polite"></div>
         <noscript>
           <p class="container catalog-notice" data-i18n="catalog.noscript">
             Для отображения каталога включите JavaScript или используйте API напрямую.
@@ -206,7 +255,7 @@
             <span data-i18n="approach.title.c">оставляет место для личного.</span>
           </h2>
         </div>
-        <ol class="approach__steps stagger">
+        <ol class="approach__steps stagger" data-stagger-children>
           <li>
             <span>01</span>
             <h3 data-i18n="approach.step1.title">Понимаем задачу</h3>
@@ -395,5 +444,6 @@
     <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
     <script src="/static/i18n.js" defer></script>
     <script src="/static/app.js" defer></script>
+    <div class="toast-stack" data-toast-container aria-live="polite" aria-atomic="true"></div>
   </body>
 </html>

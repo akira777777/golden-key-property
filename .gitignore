@@ -1,1 +1,33 @@
-.vercel
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+.ruff_cache/
+.pytest_cache/
+
+# Node (in case future tooling brings in npm)
+node_modules/
+.next/
+.turbo/
+dist/
+
+# Build artifacts
+*.egg-info/
+build/
+
+# Local databases (don't commit user data)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp

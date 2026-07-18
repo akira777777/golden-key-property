@@ -42,6 +42,8 @@ app = FastAPI(
         "Informational real-estate listings and viewing inquiries. "
         "No payments, investment products, or financial returns are offered."
     ),
+    docs_url=None,
+    redoc_url=None,
 )
 
 configured_origins = [
@@ -198,8 +200,16 @@ async def request_validation_error_handler(_: Request, exc: RequestValidationErr
 
 
 @app.exception_handler(StarletteHTTPException)
-async def http_error_handler(_: Request, exc: StarletteHTTPException) -> JSONResponse:
+async def http_error_handler(request: Request, exc: StarletteHTTPException) -> Any:
     if exc.status_code == 404:
+        path = request.url.path
+        # Serve the branded 404 page for SPA/document paths, JSON for API/static.
+        if not (path.startswith("/api/") or path.startswith("/static/")):
+            not_found_page = STATIC_DIR / "404.html"
+            if not_found_page.exists():
+                return apply_security_headers(
+                    FileResponse(not_found_page, status_code=404)
+                )
         return error_response(404, "NOT_FOUND", "The requested resource was not found.")
     if exc.status_code == 405:
         return error_response(405, "METHOD_NOT_ALLOWED", "The HTTP method is not allowed for this resource.")
@@ -272,62 +282,92 @@ def initialize_database() -> None:
         listings = [
             (
                 1,
-                "Marina View Residence",
+                "Burj Khalifa Penthouse",
+                "Downtown Dubai, UAE",
+                4_800_000,
+                "Three-bedroom penthouse on a high floor of the Burj Khalifa Residence with skyline and fountain views, full-height glazing, and dedicated concierge service.",
+                None,
+                3,
+                3.5,
+                240,
+                ListingStatus.ACTIVE.value,
+                TourType.MODEL_3D.value,
+                "/static/models/burj-penthouse.glb",
+                created_at,
+            ),
+            (
+                2,
+                "Frond Villa, Palm Jumeirah",
+                "Palm Jumeirah, UAE",
+                12_500_000,
+                "Six-bedroom signature villa on a Palm Jumeirah frond with a private beach, infinity pool, and deep-water berth.",
+                None,
+                6,
+                7.0,
+                920,
+                ListingStatus.ACTIVE.value,
+                TourType.MODEL_3D.value,
+                "/static/models/palm-villa.glb",
+                created_at,
+            ),
+            (
+                3,
+                "Marina Tower Residence",
                 "Dubai Marina, UAE",
                 1_250_000,
-                "Four-bedroom waterfront residence with a private terrace and building concierge.",
+                "Four-bedroom waterfront residence with a private terrace and a full-service building concierge.",
                 None,
                 4,
                 3.5,
                 260,
                 ListingStatus.ACTIVE.value,
                 TourType.MODEL_3D.value,
-                "https://example.com/tours/marina-view",
-                created_at,
-            ),
-            (
-                2,
-                "Coastal Family Villa",
-                "Malibu, California, USA",
-                2_400_000,
-                "Five-bedroom coastal home with outdoor living space and a short walk to the beach.",
-                None,
-                5,
-                4.0,
-                310,
-                ListingStatus.ACTIVE.value,
-                TourType.MODEL_3D.value,
-                "/static/models/villa.glb",
-                created_at,
-            ),
-            (
-                3,
-                "Alpine Chalet",
-                "Aspen, Colorado, USA",
-                1_850_000,
-                "Three-bedroom chalet near local ski access, with a fireplace and mountain views.",
-                None,
-                3,
-                2.5,
-                195,
-                ListingStatus.PENDING.value,
-                TourType.PHOTO_360.value,
-                "https://example.com/tours/alpine-chalet",
+                "/static/models/marina-tower.glb",
                 created_at,
             ),
             (
                 4,
-                "Harbour Apartment",
-                "Monte Carlo, Monaco",
-                3_200_000,
-                "Two-bedroom harbour-facing apartment with concierge access and a covered balcony.",
+                "Dubai Hills Estate Townhouse",
+                "Dubai Hills Estate, UAE",
+                2_100_000,
+                "Four-bedroom townhouse in a gated community with a private garden, covered parking, and direct access to the championship golf course.",
                 None,
-                2,
-                2.0,
-                145,
+                4,
+                4.5,
+                305,
                 ListingStatus.ACTIVE.value,
                 TourType.MODEL_3D.value,
-                "https://example.com/tours/harbour-apartment",
+                "/static/models/coastal-villa.glb",
+                created_at,
+            ),
+            (
+                5,
+                "DIFC Gate Duplex",
+                "DIFC, UAE",
+                3_400_000,
+                "Three-bedroom duplex in the DIFC Gate Village with a private lift, double-height living room, and views over the financial district skyline.",
+                None,
+                3,
+                3.0,
+                215,
+                ListingStatus.ACTIVE.value,
+                TourType.MODEL_3D.value,
+                "/static/models/harbour-penthouse.glb",
+                created_at,
+            ),
+            (
+                6,
+                "Jumeirah Bay Island Beachfront Villa",
+                "Jumeirah Bay Island, UAE",
+                18_000_000,
+                "Seven-bedroom beachfront villa on a private island peninsula with a 30-metre pool, private jetty, and direct access to the Gulf.",
+                None,
+                7,
+                8.0,
+                1_240,
+                ListingStatus.PENDING.value,
+                TourType.MODEL_3D.value,
+                "/static/models/palm-villa.glb",
                 created_at,
             ),
         ]
@@ -416,47 +456,71 @@ def alter_table_add_tour_columns():
     seed = {
         1: {
             "images": _json.dumps([
-                "https://images.unsplash.com/photo-1600596542815-ffad4c153859?w=800&q=80",
-                "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
-                "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&q=80",
-                "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
+                "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=80",
+                "https://images.unsplash.com/photo-1582672060674-bc2bd808a8b5?w=1200&q=80",
+                "https://images.unsplash.com/photo-1546412414-e1885259563a?w=1200&q=80",
+                "https://images.unsplash.com/photo-1571055107559-3e67626fa8be?w=1200&q=80",
             ]),
-            "latitude": 25.0801, "longitude": 55.1346,
-            "year_built": 2021, "parking": 2,
-            "features": _json.dumps(["Sea View", "Concierge", "Private Terrace", "Gym"]),
+            "latitude": 25.1972, "longitude": 55.2744,
+            "year_built": 2018, "parking": 2,
+            "features": _json.dumps(["Fountain View", "Skyline View", "Concierge", "Gym", "Valet"]),
         },
         2: {
             "images": _json.dumps([
-                "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80",
-                "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=80",
-                "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80",
-                "https://images.unsplash.com/photo-1600566753190-17f0baa206c3?w=800&q=80",
-                "https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=800&q=80",
+                "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600596542815-ffad4c153859?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80",
             ]),
-            "latitude": 34.0259, "longitude": -118.7798,
-            "year_built": 2019, "parking": 3,
-            "features": _json.dumps(["Beach Access", "Pool", "Garden", "Smart Home"]),
+            "latitude": 25.1124, "longitude": 55.1390,
+            "year_built": 2020, "parking": 4,
+            "features": _json.dumps(["Private Beach", "Infinity Pool", "Deep-Water Berth", "Cinema", "Maid Room"]),
         },
         3: {
             "images": _json.dumps([
-                "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800&q=80",
-                "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80",
-                "https://images.unsplash.com/photo-1600047509358-a9338b8b7ed1?w=800&q=80",
+                "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600566753376-12c8ab7a5a32?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600585153490-76fb20a32601?w=1200&q=80",
             ]),
-            "latitude": 39.1911, "longitude": -106.8175,
-            "year_built": 2017, "parking": 2,
-            "features": _json.dumps(["Ski-in/Ski-out", "Fireplace", "Mountain View", "Sauna"]),
+            "latitude": 25.0801, "longitude": 55.1346,
+            "year_built": 2021, "parking": 2,
+            "features": _json.dumps(["Marina View", "Concierge", "Private Terrace", "Gym", "Smart Home"]),
         },
         4: {
             "images": _json.dumps([
-                "https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&q=80",
-                "https://images.unsplash.com/photo-1600566753376-12c8ab7a5a32?w=800&q=80",
-                "https://images.unsplash.com/photo-1600585153490-76fb20a32601?w=800&q=80",
-                "https://images.unsplash.com/photo-1600573472591-ee6b6178f73d?w=800&q=80",
+                "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1200&q=80",
+                "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=1200&q=80",
             ]),
-            "latitude": 43.7326, "longitude": 7.4207,
-            "year_built": 2022, "parking": 1,
-            "features": _json.dumps(["Harbour View", "Concierge", "Balcony", "Wine Cellar"]),
+            "latitude": 25.0438, "longitude": 55.2367,
+            "year_built": 2022, "parking": 2,
+            "features": _json.dumps(["Golf View", "Private Garden", "Gated Community", "Family Room"]),
+        },
+        5: {
+            "images": _json.dumps([
+                "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600573472591-ee6b6178f73d?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600585152915-d208bec867a1?w=1200&q=80",
+                "https://images.unsplash.com/photo-1567496898669-ee935f5f647a?w=1200&q=80",
+            ]),
+            "latitude": 25.2138, "longitude": 55.2802,
+            "year_built": 2023, "parking": 2,
+            "features": _json.dumps(["Skyline View", "Private Lift", "Double-Height Living", "Concierge"]),
+        },
+        6: {
+            "images": _json.dumps([
+                "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600596542815-ffad4c153859?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1200&q=80",
+                "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&q=80",
+            ]),
+            "latitude": 25.2265, "longitude": 55.2340,
+            "year_built": 2024, "parking": 6,
+            "features": _json.dumps(["Private Beach", "30m Pool", "Private Jetty", "Wine Cellar", "Staff Quarters", "Smart Home"]),
         },
     }
     for lid, data in seed.items():
@@ -485,6 +549,27 @@ async def landing_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 
+@app.get("/manifest.webmanifest", include_in_schema=False)
+async def web_manifest() -> FileResponse:
+    """Serve the PWA web manifest with the correct media type."""
+    return FileResponse(
+        STATIC_DIR / "manifest.webmanifest",
+        media_type="application/manifest+json",
+    )
+
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots_txt() -> FileResponse:
+    """Serve robots.txt as plain text."""
+    return FileResponse(STATIC_DIR / "robots.txt", media_type="text/plain")
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+async def sitemap_xml() -> FileResponse:
+    """Serve the sitemap as XML."""
+    return FileResponse(STATIC_DIR / "sitemap.xml", media_type="application/xml")
+
+
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     try:
@@ -494,6 +579,24 @@ async def health_check() -> dict[str, str]:
     except sqlite3.Error as exc:
         logger.error("health_check_failed: %s", exc)
         raise HTTPException(status_code=503, detail="Database unavailable") from exc
+
+
+@app.get("/healthz", include_in_schema=False)
+async def healthz_alias() -> dict[str, str]:
+    """Alias of /health for platforms that expect the Kubernetes-style probe path."""
+    return await health_check()
+
+
+@app.get("/docs", include_in_schema=False)
+async def docs_page() -> FileResponse:
+    """Serve the in-app documentation page."""
+    return FileResponse(STATIC_DIR / "docs" / "index.html")
+
+
+@app.get("/404", include_in_schema=False)
+async def not_found_page() -> FileResponse:
+    """Serve the branded 404 page directly (useful for static hosts and SSR fallbacks)."""
+    return FileResponse(STATIC_DIR / "404.html", status_code=404)
 
 
 @app.get("/api/properties")

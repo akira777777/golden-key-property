@@ -66,21 +66,24 @@ class PropertyListingsApiTests(unittest.TestCase):
         self.assertNotIn("roiPercent", payload["data"][0])
 
     def test_filters_property_listings_by_status_location_and_price(self):
+        # PENDING + Jumeirah Bay + price band 17M..19M should isolate id=6
+        # (Jumeirah Bay Island Beachfront Villa, $18,000,000, status PENDING).
         response = client.get(
             "/api/properties",
             params={
                 "listingStatus": "PENDING",
-                "location": "Aspen",
-                "minPrice": 1_800_000,
-                "maxPrice": 1_900_000,
+                "location": "Jumeirah Bay",
+                "minPrice": 17_000_000,
+                "maxPrice": 19_000_000,
             },
         )
 
         self.assertEqual(response.status_code, 200)
         payload = response.json()
         self.assertEqual(payload["pagination"]["totalItems"], 1)
-        self.assertEqual(payload["data"][0]["title"], "Alpine Chalet")
+        self.assertEqual(payload["data"][0]["title"], "Jumeirah Bay Island Beachfront Villa")
         self.assertEqual(payload["data"][0]["listingStatus"], "PENDING")
+        self.assertEqual(payload["data"][0]["askingPriceUsd"], 18_000_000)
 
     def test_rejects_an_invalid_price_filter_range(self):
         response = client.get("/api/properties", params={"minPrice": 2_000_000, "maxPrice": 1_000_000})
@@ -232,6 +235,105 @@ class PropertyListingsApiTests(unittest.TestCase):
         self.assertEqual(payload["data"], [])
         self.assertEqual(payload["pagination"]["page"], 999)
         self.assertGreater(payload["pagination"]["totalItems"], 0)
+
+    def test_serves_docs_page(self):
+        response = client.get("/docs")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/html", response.headers["content-type"])
+        self.assertIn("Golden Key", response.text)
+        self.assertIn("data-docs-shell", response.text)
+        self.assertIn("data-docs-toc", response.text)
+        self.assertIn("/static/css/docs.css", response.text)
+        self.assertIn("/static/docs.js", response.text)
+        self.assertIn("data-i18n=\"docs.title\"", response.text)
+
+    def test_serves_404_page(self):
+        response = client.get("/404")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("text/html", response.headers["content-type"])
+        self.assertIn("Golden Key", response.text)
+        self.assertIn("data-i18n=\"error.404.title\"", response.text)
+        self.assertIn("error-shell", response.text)
+
+    def test_spa_unknown_route_serves_branded_404_html(self):
+        response = client.get("/this-path-does-not-exist")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("text/html", response.headers["content-type"])
+        self.assertIn("error-shell", response.text)
+
+    def test_api_unknown_route_still_returns_json_not_found(self):
+        response = client.get("/api/this-does-not-exist")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("application/json", response.headers["content-type"])
+        self.assertEqual(response.json()["error"]["code"], "NOT_FOUND")
+
+    def test_compliance_endpoints_still_404(self):
+        """Preserve the informational-only posture: no payment / KYC / withdrawal endpoints."""
+        retired_paths = [
+            "/api/payment",
+            "/api/payment/create",
+            "/api/kyc",
+            "/api/kyc/status",
+            "/api/withdrawal",
+            "/api/withdrawal/step",
+            "/api/dashboard",
+        ]
+
+        for path in retired_paths:
+            with self.subTest(path=path):
+                response = client.get(path)
+                self.assertEqual(response.status_code, 404)
+                self.assertEqual(response.json()["error"]["code"], "NOT_FOUND")
+
+    def test_healthz_alias_matches_health(self):
+        primary = client.get("/health")
+        alias = client.get("/healthz")
+
+        self.assertEqual(primary.status_code, alias.status_code)
+        self.assertEqual(primary.json(), alias.json())
+
+    def test_serves_web_manifest(self):
+        response = client.get("/manifest.webmanifest")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["content-type"], "application/manifest+json"
+        )
+        self.assertIn("Golden Key Property Listings", response.text)
+        self.assertIn('"start_url": "/"', response.text)
+        self.assertIn('"theme_color": "#0f2b25"', response.text)
+
+    def test_serves_robots_txt(self):
+        response = client.get("/robots.txt")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/plain", response.headers["content-type"])
+        self.assertIn("User-agent: *", response.text)
+        self.assertIn("Sitemap: /sitemap.xml", response.text)
+
+    def test_serves_sitemap_xml(self):
+        response = client.get("/sitemap.xml")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("application/xml", response.headers["content-type"])
+        self.assertIn("<urlset", response.text)
+        self.assertIn("<loc>/</loc>", response.text)
+        self.assertIn("<loc>/docs</loc>", response.text)
+
+    def test_serves_open_graph_metadata(self):
+        response = client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/html", response.headers["content-type"])
+        self.assertIn('property="og:title"', response.text)
+        self.assertIn('property="og:type"', response.text)
+        self.assertIn('name="twitter:card"', response.text)
+        self.assertIn('rel="canonical"', response.text)
+        self.assertIn('rel="manifest"', response.text)
 
 
 if __name__ == "__main__":

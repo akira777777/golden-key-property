@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f2b25" />
+    <meta
+      name="description"
+      data-i18n-attr="content"
+      data-i18n="docs.meta.description"
+      content="Golden Key — техническая документация по информационному каталогу недвижимости: API, схема данных, развёртывание, эксплуатация."
+    />
+    <title data-i18n="docs.meta.title">Golden Key — документация</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/css/docs.css" />
+  </head>
+  <body class="docs-body">
+    <a class="skip-link" href="#main-content" data-i18n="a11y.skip">Перейти к содержанию</a>
+
+    <header class="site-header" data-site-header>
+      <a class="brand" href="/" aria-label="Golden Key — на главную">
+        <span class="brand__mark" aria-hidden="true">GK</span>
+        <span class="brand__name">Golden Key</span>
+      </a>
+
+      <nav class="site-nav" id="site-navigation" aria-label="Основная навигация" data-site-nav>
+        <a href="/#catalog" data-i18n="nav.catalog">Объекты</a>
+        <a href="/docs" aria-current="page" data-i18n="nav.docs">Документация</a>
+        <a href="/#approach" data-i18n="nav.approach">Подход</a>
+        <a href="/#partners" data-i18n="nav.partners">Партнёрам</a>
+      </nav>
+
+      <div
+        class="lang-switcher"
+        role="group"
+        aria-label="Language"
+        data-lang-switcher
+      >
+        <button type="button" class="lang-switcher__btn" data-lang="ru" aria-pressed="true">RU</button>
+        <button type="button" class="lang-switcher__btn" data-lang="en" aria-pressed="false">EN</button>
+        <button type="button" class="lang-switcher__btn" data-lang="de" aria-pressed="false">DE</button>
+        <button type="button" class="lang-switcher__btn" data-lang="es" aria-pressed="false">ES</button>
+      </div>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-navigation"
+        data-menu-toggle
+      >
+        <span class="sr-only" data-i18n="nav.menu.open">Открыть навигацию</span>
+        <span aria-hidden="true" data-i18n="nav.menu.label">Меню</span>
+      </button>
+
+      <button class="header-cta" type="button" data-open-inquiry>
+        <span data-i18n="header.cta">Запросить подбор</span>
+      </button>
+    </header>
+
+    <main id="main-content" data-docs-shell>
+      <div class="docs-shell">
+        <button
+          type="button"
+          class="docs-toc-toggle"
+          aria-expanded="false"
+          aria-controls="docs-toc"
+          data-docs-toc-toggle
+        >
+          <span data-i18n="docs.toc.title">Содержание</span>
+          <span aria-hidden="true">▾</span>
+        </button>
+
+        <aside class="docs-toc" id="docs-toc" data-docs-toc aria-label="Содержание документации">
+          <p class="docs-toc__title" data-i18n="docs.toc.title">Содержание</p>
+          <ul>
+            <li><a href="#getting-started" data-i18n="docs.toc.getting-started">Быстрый старт</a></li>
+            <li><a href="#architecture" data-i18n="docs.toc.architecture">Архитектура</a></li>
+            <li>
+              <a href="#api-reference" data-i18n="docs.toc.api">API справочник</a>
+              <ul>
+                <li><a href="#api-list">Список эндпоинтов</a></li>
+                <li><a href="#api-properties">/api/properties</a></li>
+                <li><a href="#api-property">/api/properties/{id}</a></li>
+                <li><a href="#api-tour">/api/properties/{id}/tour</a></li>
+                <li><a href="#api-similar">/api/properties/{id}/similar</a></li>
+                <li><a href="#api-inquiries">/api/inquiries</a></li>
+                <li><a href="#api-health">/health</a></li>
+              </ul>
+            </li>
+            <li><a href="#data-model" data-i18n="docs.toc.data">Модель данных</a></li>
+            <li><a href="#frontend" data-i18n="docs.toc.frontend">Фронтенд</a></li>
+            <li><a href="#deployment" data-i18n="docs.toc.deployment">Развёртывание</a></li>
+            <li><a href="#operations" data-i18n="docs.toc.operations">Эксплуатация</a></li>
+            <li><a href="#compliance" data-i18n="docs.toc.compliance">Комплаенс и оговорки</a></li>
+            <li><a href="#faq" data-i18n="docs.toc.faq">FAQ</a></li>
+          </ul>
+        </aside>
+
+        <article class="docs-article">
+          <header class="docs-intro">
+            <p class="eyebrow" data-i18n="docs.eyebrow">Documentation</p>
+            <h1 data-i18n="docs.title">Golden Key — документация платформы</h1>
+            <p data-i18n="docs.subtitle">
+              Технический справочник по информационному каталогу недвижимости:
+              архитектура, эндпоинты, схема данных, развёртывание и требования комплаенса.
+            </p>
+          </header>
+
+          <!-- Getting started -->
+          <section id="getting-started" aria-labelledby="getting-started-h">
+            <h2 id="getting-started-h" data-i18n="docs.section.getting-started.title">Быстрый старт</h2>
+            <p data-i18n="docs.section.getting-started.body">
+              Golden Key — это FastAPI-приложение с SQLite и статическим фронтендом.
+              Платформа намеренно узкая: каталог объектов и приём контактных запросов.
+              Никаких платежей, кабинетов, KYC или инвестиционных продуктов.
+            </p>
+
+            <h3 id="getting-started-install" data-i18n="docs.section.getting-started.install">Локальный запуск</h3>
+            <div class="code-block">
+              <div class="code-block__header">
+                <span data-i18n="docs.code.shell">bash</span>
+                <button
+                  type="button"
+                  class="code-block__copy"
+                  data-copy-code="#gs-install"
+                  data-i18n="copy.code"
+                >Copy</button>
+              </div>
+              <pre id="gs-install"><code class="language-bash">git clone https://example.com/golden-key-dubai.git
+cd golden-key-dubai/backend
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000</code></pre>
+            </div>
+
+            <h3 id="getting-started-docker" data-i18n="docs.section.getting-started.docker">Docker</h3>
+            <div class="code-block">
+              <div class="code-block__header">
+                <span data-i18n="docs.code.shell">bash</span>
+                <button
+                  type="button"
+                  class="code-block__copy"
+                  data-copy-code="#gs-docker"
+                  data-i18n="copy.code"
+                >Copy</button>
+              </div>
+              <pre id="gs-docker"><code class="language-bash">docker build -t golden-key .
+docker run --rm -p 8000:8000 \
+  -e ALLOWED_ORIGINS=http://localhost:8000 \
+  -e RATE_LIMIT_MAX=5 -e RATE_LIMIT_WINDOW=60 \
+  golden-key</code></pre>
+            </div>
+
+            <h3 id="getting-started-env" data-i18n="docs.section.getting-started.env">Переменные окружения</h3>
+            <div class="code-block">
+              <div class="code-block__header">
+                <span>.env</span>
+                <button
+                  type="button"
+                  class="code-block__copy"
+                  data-copy-code="#gs-env"
+                  data-i18n="copy.code"
+                >Copy</button>
+              </div>
+              <pre id="gs-env"><code>PROPERTY_LISTINGS_DB_PATH=property_listings.db
+ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:5500
+RATE_LIMIT_MAX=5
+RATE_LIMIT_WINDOW=60</code></pre>
+            </div>
+          </section>
+
+          <!-- Architecture -->
+          <section id="architecture" aria-labelledby="architecture-h">
+            <h2 id="architecture-h" data-i18n="docs.section.architecture.title">Обзор архитектуры</h2>
+            <p data-i18n="docs.section.architecture.body">
+              Сервис построен на FastAPI. Каждый запрос проходит через стек
+              middleware, который выставляет защитные заголовки (CSP, X-Frame-Options,
+              Permissions-Policy, Referrer-Policy) и применяет ограничение скорости к
+              <code>POST /api/inquiries</code>. Данные хранятся в SQLite — это сделано
+              намеренно: каталог информационный, без платежей и без требований
+              распределённых транзакций.
+            </p>
+            <ul>
+              <li><strong>Backend:</strong> FastAPI, SQLite, Pydantic v2.</li>
+              <li><strong>Frontend:</strong> статические <code>index.html</code> + <code>app.js</code> + <code>styles.css</code>, без сборщика.</li>
+              <li><strong>i18n:</strong> единый словарь в <code>i18n.js</code> для четырёх локалей (ru/en/de/es), переключение сохраняется в localStorage.</li>
+              <li><strong>Security:</strong> заголовки выставляются централизованно (<code>apply_security_headers</code>), HTML/script-теги санитизируются на уровне Pydantic-валидаторов.</li>
+              <li><strong>Rate limit:</strong> in-memory sliding window по IP, защищает только <code>POST /api/inquiries</code>.</li>
+            </ul>
+            <div class="callout callout--info">
+              <strong data-i18n="docs.callout.note">Примечание:</strong>
+              <span data-i18n="docs.architecture.note">
+                Сервис не использует очереди, фоновые задачи или внешние сервисы —
+                каждый запрос полностью синхронный и читаемый в одном файле
+                (<code>backend/main.py</code>).
+              </span>
+            </div>
+          </section>
+
+          <!-- API Reference -->
+          <section id="api-reference" aria-labelledby="api-reference-h">
+            <h2 id="api-reference-h" data-i18n="docs.section.api.title">Справочник по API</h2>
+            <p data-i18n="docs.section.api.body">
+              Публичная поверхность намеренно узкая: чтение каталога,
+              детализация объекта, виртуальный тур, похожие предложения и
+              приём контактного запроса. Любые ответы содержат поле
+              <code>notice</code> с правовой оговоркой.
+            </p>
+
+            <h3 id="api-list" data-i18n="docs.section.api.list.title">Список эндпоинтов</h3>
+            <table class="endpoint-table">
+              <thead>
+                <tr>
+                  <th scope="col" data-i18n="docs.table.method">Метод</th>
+                  <th scope="col" data-i18n="docs.table.path">Путь</th>
+                  <th scope="col" data-i18n="docs.table.description">Назначение</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="method-tag method-tag--get">GET</span></td>
+                  <td><code>/health</code></td>
+                  <td data-i18n="docs.api.health">Проверка доступности сервиса и БД.</td>
+                </tr>
+                <tr>
+                  <td><span class="method-tag method-tag--get">GET</span></td>
+                  <td><code>/api/properties</code></td>
+                  <td data-i18n="docs.api.properties.list">Пагинированный каталог с фильтрами.</td>
+                </tr>
+                <tr>
+                  <td><span class="method-tag method-tag--get">GET</span></td>
+                  <td><code>/api/properties/{id}</code></td>
+                  <td data-i18n="docs.api.properties.detail">Детальная карточка объекта.</td>
+                </tr>
+                <tr>
+                  <td><span class="method-tag method-tag--get">GET</span></td>
+                  <td><code>/api/properties/{id}/tour</code></td>
+                  <td data-i18n="docs.api.properties.tour">Метаданные виртуального тура.</td>
+                </tr>
+                <tr>
+                  <td><span class="method-tag method-tag--get">GET</span></td>
+                  <td><code>/api/properties/{id}/similar</code></td>
+                  <td data-i18n="docs.api.properties.similar">До трёх похожих объектов (±30% по цене).</td>
+                </tr>
+                <tr>
+                  <td><span class="method-tag method-tag--post">POST</span></td>
+                  <td><code>/api/inquiries</code></td>
+                  <td data-i18n="docs.api.inquiries">Создание контактного запроса. Под rate-limit.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout callout--legal">
+              <strong data-i18n="docs.callout.compliance">Комплаенс:</strong>
+              <span data-i18n="docs.api.compliance">
+                В API нет и не будет эндпоинтов <code>/api/payment</code>,
+                <code>/api/kyc</code>, <code>/api/withdrawal</code> или
+                <code>/api/dashboard</code> — каталог остаётся информационным.
+              </span>
+            </div>
+
+            <h3 id="api-properties" data-i18n="docs.api.properties.list.title">/api/properties</h3>
+            <p data-i18n="docs.api.properties.list.body">
+              Возвращает пагинированный список объектов. Фильтры:
+              <code>location</code> (подстрочный поиск), <code>minPrice</code>,
+              <code>maxPrice</code>, <code>listingStatus</code>. По умолчанию
+              отдаются только <code>ACTIVE</code> объекты.
+            </p>
+
+            <div class="code-tabs" data-tabs>
+              <div class="code-tabs__bar" role="tablist">
+                <button type="button" class="code-tabs__tab is-active" data-tab="curl" aria-selected="true">curl</button>
+                <button type="button" class="code-tabs__tab" data-tab="python" aria-selected="false">Python</button>
+                <button type="button" class="code-tabs__tab" data-tab="js" aria-selected="false">JavaScript</button>
+              </div>
+              <div class="code-tabs__panels">
+                <div class="code-tabs__panel is-active" data-tab-panel="curl">
+                  <div class="code-block">
+                    <div class="code-block__header">
+                      <span>curl</span>
+                      <button type="button" class="code-block__copy" data-copy-code="#api-properties-curl" data-i18n="copy.code">Copy</button>
+                    </div>
+                    <pre id="api-properties-curl"><code>curl -sS "https://example.com/api/properties?page=1&amp;pageSize=10&amp;location=dubai"</code></pre>
+                  </div>
+                </div>
+                <div class="code-tabs__panel" data-tab-panel="python">
+                  <div class="code-block">
+                    <div class="code-block__header">
+                      <span>python</span>
+                      <button type="button" class="code-block__copy" data-copy-code="#api-properties-py" data-i18n="copy.code">Copy</button>
+                    </div>
+                    <pre id="api-properties-py"><code>import httpx
+
+response = httpx.get(
+    "https://example.com/api/properties",
+    params={"page": 1, "pageSize": 10, "location": "dubai"},
+)
+response.raise_for_status()
+catalog = response.json()
+print(catalog["pagination"], len(catalog["data"]))</code></pre>
+                  </div>
+                </div>
+                <div class="code-tabs__panel" data-tab-panel="js">
+                  <div class="code-block">
+                    <div class="code-block__header">
+                      <span>javascript</span>
+                      <button type="button" class="code-block__copy" data-copy-code="#api-properties-js" data-i18n="copy.code">Copy</button>
+                    </div>
+                    <pre id="api-properties-js"><code>const params = new URLSearchParams({ page: 1, pageSize: 10, location: "dubai" });
+const res = await fetch(`/api/properties?${params}`);
+const catalog = await res.json();
+console.log(catalog.pagination, catalog.data.length);</code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h3 id="api-property" data-i18n="docs.api.properties.detail.title">/api/properties/{id}</h3>
+            <p data-i18n="docs.api.properties.detail.body">
+              Возвращает одну запись и оговорку. <code>404 NOT_FOUND</code>, если
+              идентификатор неизвестен.
+            </p>
+            <div class="code-block">
+              <div class="code-block__header">
+                <span>curl</span>
+                <button type="button" class="code-block__copy" data-copy-code="#api-property-curl" data-i18n="copy.code">Copy</button>
+              </div>
+              <pre id="api-property-curl"><code>curl -sS https://example.com/api/properties/1</code></pre>
+            </div>
+
+            <h3 id="api-tour" data-i18n="docs.api.properties.tour.title">/api/properties/{id}/tour</h3>
+            <p data-i18n="docs.api.properties.tour.body">
+              Возвращает <code>tourType</code> (<code>NONE</code>,
+              <code>PHOTO_360</code>, <code>MODEL_3D</code>, <code>VIDEO_3D</code>)
+              и URL тура. Поле <code>isLocalModel</code> подсказывает фронтенду,
+              что нужно монтировать локальный <code>.glb</code> в
+              <code>&lt;model-viewer&gt;</code>.
+            </p>
+            <div class="code-block">
+              <div class="code-block__header">
+                <span>curl</span>
+                <button type="button" class="code-block__copy" data-copy-code="#api-tour-curl" data-i18n="copy.code">Copy</button>
+              </div>
+              <pre id="api-tour-curl"><code>curl -sS https://example.com/api/properties/1/tour</code></pre>
+            </div>
+
+            <h3 id="api-similar" data-i18n="docs.api.properties.similar.title">/api/properties/{id}/similar</h3>
+            <p data-i18n="docs.api.properties.similar.body">
+              Подбирает до трёх объектов в коридоре ±30 % по цене, исключая
+              исходный. Источник должен существовать.
+            </p>
+            <div class="code-block">
+              <div class="code-block__header">
+                <span>curl</span>
+                <button type="button" class="code-block__copy" data-copy-code="#api-similar-curl" data-i18n="copy.code">Copy</button>
+              </div>
+              <pre id="api-similar-curl"><code>curl -sS https://example.com/api/properties/1/similar</code></pre>
+            </div>
+
+            <h3 id="api-inquiries" data-i18n="docs.api.inquiries.title">/api/inquiries (POST)</h3>
+            <p data-i18n="docs.api.inquiries.body">
+              Создаёт контактный запрос. Тело — JSON с camelCase-полями.
+              Поле <code>consentToContact</code> обязательно.
+              Ответ содержит идентификатор запроса, но не эхо персональных данных.
+            </p>
+            <div class="code-block">
+              <div class="code-block__header">
+                <span>curl</span>
+                <button type="button" class="code-block__copy" data-copy-code="#api-inquiries-curl" data-i18n="copy.code">Copy</button>
+              </div>
+              <pre id="api-inquiries-curl"><code>curl -sS -X POST https://example.com/api/inquiries \
+  -H "Content-Type: application/json" \
+  -d '{
+    "propertyId": 1,
+    "fullName": "Alex Example",
+    "email": "alex@example.com",
+    "phone": "+971 50 000 0000",
+    "message": "I would like to arrange a viewing next week.",
+    "consentToContact": true
+  }'</code></pre>
+            </div>
+            <div class="callout callout--warn">
+              <strong data-i18n="docs.callout.warn">Внимание:</strong>
+              <span data-i18n="docs.api.inquiries.warn">
+                <code>POST /api/inquiries</code> ограничен скользящим окном
+                (<code>RATE_LIMIT_MAX</code> запросов в
+                <code>RATE_LIMIT_WINDOW</code> секунд). Превышение вернёт
+                <code>429 RATE_LIMITED</code>.
+              </span>
+            </div>
+
+            <h3 id="api-health" data-i18n="docs.api.health.title">/health</h3>
+            <p data-i18n="docs.api.health.body">
+              Возвращает <code>{"status": "ok"}</code> при доступной БД.
+              При недоступности — <code>503</code>.
+            </p>
+            <div class="code-block">
+              <div class="code-block__header">
+                <span>curl</span>
+                <button type="button" class="code-block__copy" data-copy-code="#api-health-curl" data-i18n="copy.code">Copy</button>
+              </div>
+              <pre id="api-health-curl"><code>curl -sS https://example.com/health</code></pre>
+            </div>
+          </section>
+
+          <!-- Data model -->
+          <section id="data-model" aria-labelledby="data-model-h">
+            <h2 id="data-model-h" data-i18n="docs.section.data.title">Модель данных</h2>
+            <p data-i18n="docs.section.data.body">
+              SQLite-схема создаётся в <code>initialize_database</code>
+              при старте. Колонки <code>images</code> и <code>features</code>
+              хранят JSON-строки, парсятся через <code>_safe_json_list</code>.
+              Колонка <code>asking_price_usd</code> — единственная денежная величина,
+              хранится исключительно как справочное значение.
+            </p>
+
+            <div class="code-block">
+              <div class="code-block__header">
+                <span>SQL</span>
+                <button type="button" class="code-block__copy" data-copy-code="#schema-sql" data-i18n="copy.code">Copy</button>
+              </div>
+              <pre id="schema-sql"><code>CREATE TABLE IF NOT EXISTS listings (
+    id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    location TEXT NOT NULL,
+    asking_price_usd REAL NOT NULL CHECK (asking_price_usd &gt; 0),
+    description TEXT NOT NULL,
+    image_url TEXT,
+    bedrooms INTEGER CHECK (bedrooms &gt;= 0),
+    bathrooms REAL CHECK (bathrooms &gt;= 0),
+    area_sq_m REAL CHECK (area_sq_m &gt; 0),
+    listing_status TEXT NOT NULL CHECK (listing_status IN ('ACTIVE', 'PENDING', 'SOLD')),
+    tour_type TEXT NOT NULL DEFAULT 'NONE'
+        CHECK (tour_type IN ('NONE', 'PHOTO_360', 'MODEL_3D', 'VIDEO_3D')),
+    tour_url TEXT,
+    images TEXT DEFAULT '[]',
+    latitude REAL,
+    longitude REAL,
+    year_built INTEGER CHECK (year_built &gt; 1800 AND year_built &lt; 2100),
+    parking INTEGER CHECK (parking &gt;= 0),
+    features TEXT DEFAULT '[]',
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS inquiries (
+    id INTEGER PRIMARY KEY,
+    property_id INTEGER NOT NULL REFERENCES listings(id),
+    full_name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT,
+    message TEXT NOT NULL,
+    consent_to_contact INTEGER NOT NULL CHECK (consent_to_contact IN (0, 1)),
+    created_at TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'RECEIVED'
+        CHECK (status IN ('RECEIVED', 'CONTACTED', 'CLOSED'))
+);</code></pre>
+            </div>
+
+            <div class="callout callout--info">
+              <strong data-i18n="docs.callout.note">Примечание:</strong>
+              <span data-i18n="docs.data.note">
+                В схеме намеренно нет колонок для балансов, кошельков,
+                транзакций, реферальных кодов или статусов KYC.
+              </span>
+            </div>
+          </section>
+
+          <!-- Frontend -->
+          <section id="frontend" aria-labelledby="frontend-h">
+            <h2 id="frontend-h" data-i18n="docs.section.frontend.title">Фронтенд: как это собрано</h2>
+            <p data-i18n="docs.section.frontend.body">
+              Главная страница (<code>/</code>) — статический HTML + небольшой
+              vanilla-JS. Никаких сборщиков и зависимостей, кроме
+              <code>@google/model-viewer</code> для 3D-тура.
+            </p>
+
+            <h3 id="frontend-i18n" data-i18n="docs.section.frontend.i18n">i18n.js</h3>
+            <p data-i18n="docs.section.frontend.i18n.body">
+              Словарь <code>TRANSLATIONS</code> хранит ключи для ru/en/de/es.
+              Каждый <code>[data-i18n="key"]</code> получает текст при загрузке
+              и при клике по переключателю языка. Ключи с
+              <code>data-i18n-attr="..."</code> применяются к атрибуту
+              (например, <code>content</code> для meta или
+              <code>placeholder</code> для инпута).
+            </p>
+
+            <h3 id="frontend-app" data-i18n="docs.section.frontend.app">app.js</h3>
+            <p data-i18n="docs.section.frontend.app.body">
+              Главный клиент: загружает <code>/api/properties</code>,
+              рендерит карточки, открывает диалоги (<code>&lt;dialog&gt;</code>)
+              для формы запроса и тура. <code>data-open-inquiry</code> /
+              <code>data-close-inquiry</code> — единая точка входа/выхода
+              диалога.
+            </p>
+
+            <h3 id="frontend-styles" data-i18n="docs.section.frontend.styles">styles.css</h3>
+            <p data-i18n="docs.section.frontend.styles.body">
+              Единый файл стилей для всей платформы. CSS-переменные вынесены
+              в <code>:root</code>: палитра, отступы, типографика.
+              <code>docs.css</code> наследует переменные и не переопределяет
+              базовые токены.
+            </p>
+
+            <h3 id="frontend-dialogs" data-i18n="docs.section.frontend.dialogs">Диалоги</h3>
+            <p data-i18n="docs.section.frontend.dialogs.body">
+              Используется нативный <code>&lt;dialog&gt;</code> — фокус-трап
+              и закрытие по <kbd>Esc</kbd> работают «из коробки».
+              Для тура <code>&lt;model-viewer&gt;</code> подключается
+              через CDN; <code>app.js</code> лениво подгружает только при
+              открытии.
+            </p>
+          </section>
+
+          <!-- Deployment -->
+          <section id="deployment" aria-labelledby="deployment-h">
+            <h2 id="deployment-h" data-i18n="docs.section.deployment.title">Развёртывание</h2>
+            <p data-i18n="docs.section.deployment.body">
+              Сервис намеренно stateless поверх локальной SQLite. Это упрощает
+              деплой на Vercel или в Docker-контейнер без миграций и очередей.
+            </p>
+
+            <h3 id="deployment-vercel" data-i18n="docs.section.deployment.vercel">Vercel</h3>
+            <p data-i18n="docs.section.deployment.vercel.body">
+              Используйте конфигурацию <code>vercel.json</code> в корне репозитория:
+              rewrite всего, что не начинается с <code>/api/</code>, на
+              <code>backend/main.py</code> как serverless-функцию. SQLite
+              подключается по <code>PROPERTY_LISTINGS_DB_PATH</code> — выберите
+              <code>/tmp</code> для эфемерного состояния или подключите Vercel Blob,
+              если нужна персистентность.
+            </p>
+
+            <h3 id="deployment-docker" data-i18n="docs.section.deployment.docker">Docker</h3>
+            <p data-i18n="docs.section.deployment.docker.body">
+              В <code>backend/Dockerfile</code> используется официальный
+              <code>python:3.11-slim</code>. <code>EXPOSE 8000</code>,
+              запуск через <code>uvicorn main:app --host 0.0.0.0 --port 8000</code>.
+              Для compose-окружения можно прокинуть том на
+              <code>PROPERTY_LISTINGS_DB_PATH</code>.
+            </p>
+
+            <h3 id="deployment-env" data-i18n="docs.section.deployment.env">Переменные окружения</h3>
+            <ul>
+              <li><code>ALLOWED_ORIGINS</code> — список origin, через запятую.</li>
+              <li><code>RATE_LIMIT_MAX</code> — максимум запросов <code>POST /api/inquiries</code> на окно (по умолчанию 5).</li>
+              <li><code>RATE_LIMIT_WINDOW</code> — длина окна в секундах (по умолчанию 60).</li>
+              <li><code>PROPERTY_LISTINGS_DB_PATH</code> — путь к SQLite-файлу.</li>
+            </ul>
+          </section>
+
+          <!-- Operations -->
+          <section id="operations" aria-labelledby="operations-h">
+            <h2 id="operations-h" data-i18n="docs.section.operations.title">Эксплуатация и мониторинг</h2>
+            <p data-i18n="docs.section.operations.body">
+              Сервис пишет структурированные логи (<code>logger = logging.getLogger("golden_key")</code>).
+              Значимые события: создание запроса, подбор похожих, превышение rate limit,
+              падение health-check.
+            </p>
+
+            <h3 id="operations-health" data-i18n="docs.section.operations.health">/health</h3>
+            <p data-i18n="docs.section.operations.health.body">
+              Подходит для liveness/readiness в Kubernetes, Render или Fly.
+              Делает <code>SELECT 1 FROM listings LIMIT 1</code>, поэтому
+              одновременно является smoke-тестом схемы.
+            </p>
+
+            <h3 id="operations-logs" data-i18n="docs.section.operations.logs">Логи</h3>
+            <p data-i18n="docs.section.operations.logs.body">
+              Формат <code>%(asctime)s [%(levelname)s] %(name)s: %(message)s</code>.
+              События поиска похожих объектов и приёма запросов идут с префиксом
+              <code>similar_properties</code> и <code>inquiry_created</code> —
+              удобно фильтровать по <code>grep</code>.
+            </p>
+
+            <h3 id="operations-rate-limit" data-i18n="docs.section.operations.rate">Сброс rate-limit</h3>
+            <p data-i18n="docs.section.operations.rate.body">
+              Лимиты живут в in-memory <code>_rate_buckets</code>.
+              При перезапуске процесса окна сбрасываются автоматически. Для
+              ручного сброса в long-running окружениях можно импортировать
+              <code>_rate_buckets</code> и очистить его.
+            </p>
+          </section>
+
+          <!-- Compliance -->
+          <section id="compliance" aria-labelledby="compliance-h">
+            <h2 id="compliance-h" data-i18n="docs.section.compliance.title">Комплаенс и оговорки</h2>
+
+            <div class="callout callout--legal">
+              <strong data-i18n="docs.callout.legal">Юридическая оговорка:</strong>
+              <span data-i18n="docs.compliance.legal">
+                Listing information is illustrative and subject to agent and owner verification.
+                It is not an offer, investment advice, or a binding contract.
+              </span>
+            </div>
+
+            <h3 id="compliance-no-payments" data-i18n="docs.compliance.no-payments.title">Без платежей</h3>
+            <p data-i18n="docs.compliance.no-payments.body">
+              Сервис не принимает деньги, не открывает кошельки, не выплачивает
+              доходность, не продаёт инвестиционные доли и не проводит KYC.
+              Все запросы остаются контактными: после заполнения формы
+              представитель связывается с клиентом вручную.
+            </p>
+
+            <h3 id="compliance-dubai" data-i18n="docs.compliance.dubai.title">Дубай: DLD / RERA</h3>
+            <p data-i18n="docs.compliance.dubai.body">
+              В Дубае любая сделка по объекту должна сопровождаться
+              лицензированным брокером, зарегистрированным в
+              <strong>Dubai Land Department (DLD)</strong> и
+              <strong>RERA</strong>. Информация на сайте носит
+              ознакомительный характер и не заменяет проверку:
+            </p>
+            <ul>
+              <li data-i18n="docs.compliance.dubai.broker">проверьте RERA-номер брокера и его актуальный статус;</li>
+              <li data-i18n="docs.compliance.dubai.owner">запросите подтверждение права собственности через DLD;</li>
+              <li data-i18n="docs.compliance.dubai.contract">не подписывайте платёжные документы и формы без проверки условий у лицензированного специалиста.</li>
+            </ul>
+
+            <div class="callout callout--warn">
+              <strong data-i18n="docs.callout.warn">Внимание:</strong>
+              <span data-i18n="docs.compliance.dubai.warn">
+                Любые расчёты «доходности», «гарантированной аренды» или
+                «возврата инвестиций» не имеют отношения к этому сервису.
+                Не переводите средства по реквизитам, найденным на сайте,
+                и не сообщайте документы через форму.
+              </span>
+            </div>
+          </section>
+
+          <!-- FAQ -->
+          <section id="faq" aria-labelledby="faq-h">
+            <h2 id="faq-h" data-i18n="docs.section.faq.title">Часто задаваемые вопросы</h2>
+
+            <h3 data-i18n="docs.faq.q1.title">Это инвестиционная платформа?</h3>
+            <p data-i18n="docs.faq.q1.body">
+              Нет. Golden Key — информационный каталог недвижимости и сервис
+              приёма контактных запросов. Сайт не предлагает инвестиционные
+              продукты, не принимает средства и не гарантирует доходность.
+            </p>
+
+            <h3 data-i18n="docs.faq.q2.title">Что произойдёт после отправки формы?</h3>
+            <p data-i18n="docs.faq.q2.body">
+              Запрос попадает в очередь консультантов. С вами связываются
+              по выбранному объекту и только по оставленным контактам. Без
+              согласия на обработку форма не отправится.
+            </p>
+
+            <h3 data-i18n="docs.faq.q3.title">Можно ли платить через сайт?</h3>
+            <p data-i18n="docs.faq.q3.body">
+              Нет. Сайт не принимает платежи, не хранит реквизиты и не
+              выставляет счета. Любые финансовые расчёты происходят за
+              пределами платформы — под контролем вашего банка и
+              лицензированного брокера.
+            </p>
+
+            <h3 data-i18n="docs.faq.q4.title">Откуда берутся цены в каталоге?</h3>
+            <p data-i18n="docs.faq.q4.body">
+              Цены запрашиваются у владельца или его представителя и
+              регулярно пересматриваются. Финальная стоимость может
+              отличаться — её нужно подтверждать в переписке или на
+              встрече с агентом.
+            </p>
+
+            <h3 data-i18n="docs.faq.q5.title">Гарантируется ли наличие объекта?</h3>
+            <p data-i18n="docs.faq.q5.body">
+              Нет. Доступность зависит от владельца и рынка. Статус
+              <code>ACTIVE</code> означает, что объект опубликован, но
+              не заменяет оффер или договор.
+            </p>
+
+            <h3 data-i18n="docs.faq.q6.title">Как проверить брокера в Дубае?</h3>
+            <p data-i18n="docs.faq.q6.body">
+              Запросите RERA-номер (Broker ID) и сверьте его через публичные
+              реестры Dubai Land Department. Не работайте с брокером без
+              действующей лицензии и актуальной регистрации.
+            </p>
+
+            <h3 data-i18n="docs.faq.q7.title">Хранит ли сайт мои документы?</h3>
+            <p data-i18n="docs.faq.q7.body">
+              Нет. Через форму мы получаем только имя, контакт и текст
+              сообщения. Не присылайте паспорт, банковские реквизиты или
+              иные документы — мы их не обрабатываем и не запрашиваем.
+            </p>
+
+            <h3 data-i18n="docs.faq.q8.title">Как связаться для уточнений?</h3>
+            <p data-i18n="docs.faq.q8.body">
+              Используйте форму на странице объекта или на главной — кнопка
+              «Запросить подбор». Мы отвечаем в порядке очереди запросов.
+            </p>
+          </section>
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <div>
+          <a class="brand brand--footer" href="/" aria-label="Golden Key — на главную">
+            <span class="brand__mark" aria-hidden="true">GK</span>
+            <span class="brand__name">Golden Key</span>
+          </a>
+          <p data-i18n="footer.tagline">International property advisory</p>
+        </div>
+        <p class="site-footer__legal" data-i18n="footer.legal">
+          Информация по объектам носит ознакомительный характер и требует проверки у агента и владельца.
+        </p>
+        <p>© <span data-current-year></span> Golden Key Property</p>
+      </div>
+    </footer>
+
+    <script src="/static/i18n.js" defer></script>
+    <script src="/static/docs.js" defer></script>
+  </body>
+</html>

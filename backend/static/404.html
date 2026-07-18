@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f2b25" />
+    <meta
+      name="description"
+      data-i18n-attr="content"
+      data-i18n="error.404.body"
+      content="Страница не найдена. Вернитесь на главную или откройте документацию."
+    />
+    <title data-i18n="error.404.title">404 — страница не найдена</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/css/docs.css" />
+  </head>
+  <body class="docs-body">
+    <a class="skip-link" href="#main-content" data-i18n="a11y.skip">Перейти к содержанию</a>
+
+    <header class="site-header" data-site-header>
+      <a class="brand" href="/" aria-label="Golden Key — на главную">
+        <span class="brand__mark" aria-hidden="true">GK</span>
+        <span class="brand__name">Golden Key</span>
+      </a>
+
+      <nav class="site-nav" id="site-navigation" aria-label="Основная навигация" data-site-nav>
+        <a href="/#catalog" data-i18n="nav.catalog">Объекты</a>
+        <a href="/docs" data-i18n="nav.docs">Документация</a>
+        <a href="/#approach" data-i18n="nav.approach">Подход</a>
+        <a href="/#partners" data-i18n="nav.partners">Партнёрам</a>
+      </nav>
+
+      <div
+        class="lang-switcher"
+        role="group"
+        aria-label="Language"
+        data-lang-switcher
+      >
+        <button type="button" class="lang-switcher__btn" data-lang="ru" aria-pressed="true">RU</button>
+        <button type="button" class="lang-switcher__btn" data-lang="en" aria-pressed="false">EN</button>
+        <button type="button" class="lang-switcher__btn" data-lang="de" aria-pressed="false">DE</button>
+        <button type="button" class="lang-switcher__btn" data-lang="es" aria-pressed="false">ES</button>
+      </div>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-navigation"
+        data-menu-toggle
+      >
+        <span class="sr-only" data-i18n="nav.menu.open">Открыть навигацию</span>
+        <span aria-hidden="true" data-i18n="nav.menu.label">Меню</span>
+      </button>
+
+      <button class="header-cta" type="button" data-open-inquiry>
+        <span data-i18n="header.cta">Запросить подбор</span>
+      </button>
+    </header>
+
+    <main id="main-content">
+      <section class="error-shell" aria-labelledby="error-404-title">
+        <p class="error-eyebrow" data-i18n="error.404.eyebrow">404</p>
+        <h1>404</h1>
+        <h2 id="error-404-title" data-i18n="error.404.title">Страница не найдена</h2>
+        <p data-i18n="error.404.body">
+          Запрашиваемый адрес не существует. Возможно, объект снят с публикации
+          или ссылка устарела.
+        </p>
+        <div class="error-actions">
+          <a class="button button--dark" href="/" data-i18n="error.404.cta.home">На главную</a>
+          <a class="text-link" href="/docs" data-i18n="error.404.cta.docs">Открыть документацию</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <div>
+          <a class="brand brand--footer" href="/" aria-label="Golden Key — на главную">
+            <span class="brand__mark" aria-hidden="true">GK</span>
+            <span class="brand__name">Golden Key</span>
+          </a>
+          <p data-i18n="footer.tagline">International property advisory</p>
+        </div>
+        <p class="site-footer__legal" data-i18n="footer.legal">
+          Информация по объектам носит ознакомительный характер и требует проверки у агента и владельца.
+        </p>
+        <p>© <span data-current-year></span> Golden Key Property</p>
+      </div>
+    </footer>
+
+    <script src="/static/i18n.js" defer></script>
+    <script src="/static/docs.js" defer></script>
+  </body>
+</html>
