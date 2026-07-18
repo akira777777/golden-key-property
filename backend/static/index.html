@@ -441,6 +441,101 @@
       </div>
     </dialog>
 
+    <dialog class="details-dialog" aria-labelledby="details-title" data-details-dialog>
+      <div class="details-dialog__layout">
+        <button class="dialog-close" type="button" aria-label="Закрыть детали" data-close-details>
+          <span aria-hidden="true">×</span>
+        </button>
+        <div class="details-dialog__grid">
+          <div class="details-dialog__visuals">
+            <div class="details-carousel" data-details-carousel>
+              <div class="details-carousel__track-container">
+                <ul class="details-carousel__track" data-carousel-track>
+                  <!-- Dynamically populated slides -->
+                </ul>
+              </div>
+              <button type="button" class="details-carousel__btn details-carousel__btn--left" data-carousel-prev aria-label="Previous image">‹</button>
+              <button type="button" class="details-carousel__btn details-carousel__btn--right" data-carousel-next aria-label="Next image">›</button>
+              <div class="details-carousel__nav" data-carousel-nav>
+                <!-- Dynamically populated indicators -->
+              </div>
+            </div>
+            <div class="details-landmarks-wrap">
+              <h3 class="details-subtitle" data-i18n="details.landmarks">Расстояние до ориентиров</h3>
+              <ul class="details-landmarks" data-details-landmarks>
+                <!-- Dynamically calculated landmarks -->
+              </ul>
+            </div>
+          </div>
+          <div class="details-dialog__info">
+            <p class="details-location" data-details-location></p>
+            <h2 id="details-title" data-details-title></h2>
+            <div class="details-price-wrap">
+              <span class="details-price" data-details-price></span>
+              <span class="details-price-sqm" data-details-price-sqm></span>
+            </div>
+            <div class="details-specs" data-details-specs>
+              <!-- Populated spec grid -->
+            </div>
+            <div class="details-amenities-wrap">
+              <h3 class="details-subtitle" data-i18n="details.amenities">Удобства и особенности</h3>
+              <div class="details-amenities" data-details-amenities>
+                <!-- Populated badges -->
+              </div>
+            </div>
+            <div class="details-dialog__actions">
+              <button class="button button--dark" type="button" data-details-inquiry>
+                <span data-i18n="inquiry.submit">Отправить запрос</span>
+                <span aria-hidden="true">↗</span>
+              </button>
+              <button class="button button--outline" type="button" data-details-tour>
+                <span data-i18n="card.cta.tourFallback">3D-тур</span>
+                <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <div class="compare-bar" data-compare-bar hidden>
+      <div class="compare-bar__inner">
+        <div class="compare-bar__info">
+          <h4 data-i18n="compare.title">Сравнение объектов</h4>
+          <div class="compare-bar__thumbnails" data-compare-thumbnails>
+            <!-- Selected property thumbnails -->
+          </div>
+        </div>
+        <div class="compare-bar__actions">
+          <button class="button button--light" type="button" data-compare-trigger>
+            <span data-i18n="compare.now">Сравнить выбранные</span>
+            <span class="compare-bar__count" data-compare-count>0</span>
+          </button>
+          <button class="text-link text-link--light" type="button" data-compare-clear>
+            <span data-i18n="compare.clear">Очистить список</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <dialog class="compare-dialog" aria-labelledby="compare-dialog-title" data-compare-dialog>
+      <div class="compare-dialog__layout">
+        <div class="compare-dialog__header">
+          <h2 id="compare-dialog-title" data-i18n="compare.title">Сравнение объектов</h2>
+          <button class="dialog-close" type="button" aria-label="Закрыть сравнение" data-close-compare>
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="compare-dialog__content">
+          <div class="compare-table-wrapper">
+            <table class="compare-table" data-compare-table>
+              <!-- Programmatically generated comparison table -->
+            </table>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
     <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
     <script src="/static/i18n.js" defer></script>
     <script src="/static/app.js" defer></script>

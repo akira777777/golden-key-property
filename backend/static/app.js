@@ -216,8 +216,13 @@ function createPropertyCard(property) {
 
   const visual = document.createElement("div");
   visual.className = "property-card__visual";
-  visual.setAttribute("aria-hidden", "true");
   visual.dataset.propertyId = String(property.id);
+  visual.style.cursor = "pointer";
+  visual.addEventListener("click", (e) => {
+    if (e.target.closest(".property-card__compare")) return;
+    openDetails(property);
+  });
+
   if (property.imageUrl) {
     const image = document.createElement("img");
     image.src = property.imageUrl;
@@ -234,11 +239,45 @@ function createPropertyCard(property) {
     );
   }
 
+  // Compare checkbox overlay
+  const compareLabel = document.createElement("label");
+  compareLabel.className = "property-card__compare";
+  compareLabel.setAttribute("aria-label", I18N.translate("compare.label"));
+  compareLabel.addEventListener("click", (e) => e.stopPropagation());
+
+  const compareInput = document.createElement("input");
+  compareInput.type = "checkbox";
+  compareInput.value = property.id;
+  compareInput.checked = selectedCompareIds.includes(property.id);
+  compareInput.addEventListener("change", (e) => {
+    toggleCompareProperty(property.id, e.target.checked);
+  });
+
+  const compareSpan = document.createElement("span");
+  compareSpan.textContent = I18N.translate("compare.label");
+
+  compareLabel.append(compareInput, compareSpan);
+  visual.append(compareLabel);
+
   const content = document.createElement("div");
   content.className = "property-card__content";
 
   content.append(createTextElement("p", "property-card__location", property.location));
-  content.append(createTextElement("h3", "", property.title));
+  
+  // Make title clickable button
+  const titleNode = createTextElement("h3", "", property.title);
+  titleNode.style.cursor = "pointer";
+  titleNode.setAttribute("tabindex", "0");
+  titleNode.setAttribute("role", "button");
+  titleNode.setAttribute("aria-label", `${I18N.translate("details.view")}: ${property.title}`);
+  titleNode.addEventListener("click", () => openDetails(property));
+  titleNode.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openDetails(property);
+    }
+  });
+  content.append(titleNode);
 
   content.append(createTextElement("p", "property-card__price", fmtPrice(property.askingPriceUsd)));
 
@@ -789,7 +828,7 @@ function configureSmoothScroll() {
 // ----- Focus restoration polish for dialogs -----
 
 function configureDialogPolish() {
-  [inquiryDialog, tourDialog].forEach((dialog) => {
+  [inquiryDialog, tourDialog, detailsDialog, compareDialog].forEach((dialog) => {
     if (!dialog) return;
     dialog.addEventListener("close", () => {
       // Native focus restoration handled by the browser, but make sure the
@@ -834,6 +873,28 @@ document.addEventListener("click", (event) => {
       );
     }
   }
+
+  // Details dialog controls
+  if (event.target instanceof Element && event.target.closest("[data-close-details]")) {
+    detailsDialog?.close();
+  }
+  if (event.target instanceof Element && event.target.closest("[data-carousel-prev]")) {
+    goToCarouselSlide(detailsCarouselIndex - 1);
+  }
+  if (event.target instanceof Element && event.target.closest("[data-carousel-next]")) {
+    goToCarouselSlide(detailsCarouselIndex + 1);
+  }
+
+  // Compare dialog controls
+  if (event.target instanceof Element && event.target.closest("[data-close-compare]")) {
+    compareDialog?.close();
+  }
+  if (event.target instanceof Element && event.target.closest("[data-compare-trigger]")) {
+    openComparison();
+  }
+  if (event.target instanceof Element && event.target.closest("[data-compare-clear]")) {
+    clearCompareSelection();
+  }
 });
 
 closeTourButton?.addEventListener("click", closeTour);
@@ -869,6 +930,477 @@ document.querySelectorAll("[data-current-year]").forEach((element) => {
   element.textContent = String(new Date().getFullYear());
 });
 
+// ============================================================
+//  Premium Feature: Details Modal & Carousel & Landmarks
+// ============================================================
+
+const detailsDialog = document.querySelector("[data-details-dialog]");
+let detailsCarouselIndex = 0;
+let detailsCarouselImages = [];
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+function openDetails(property) {
+  if (!detailsDialog) return;
+
+  const locationEl = detailsDialog.querySelector("[data-details-location]");
+  const titleEl = detailsDialog.querySelector("[data-details-title]");
+  const priceEl = detailsDialog.querySelector("[data-details-price]");
+  const priceSqmEl = detailsDialog.querySelector("[data-details-price-sqm]");
+  const specsEl = detailsDialog.querySelector("[data-details-specs]");
+  const amenitiesEl = detailsDialog.querySelector("[data-details-amenities]");
+  const landmarksEl = detailsDialog.querySelector("[data-details-landmarks]");
+
+  if (locationEl) locationEl.textContent = property.location;
+  if (titleEl) titleEl.textContent = property.title;
+  if (priceEl) priceEl.textContent = fmtPrice(property.askingPriceUsd);
+
+  if (priceSqmEl && property.askingPriceUsd && property.areaSqM) {
+    const perSqm = Math.round(property.askingPriceUsd / property.areaSqM);
+    priceSqmEl.textContent = t("card.pricePerSqM", { price: fmtPrice(perSqm) });
+  } else if (priceSqmEl) {
+    priceSqmEl.textContent = "";
+  }
+
+  if (specsEl) {
+    specsEl.innerHTML = "";
+    
+    // Bedrooms
+    const bed = document.createElement("div");
+    bed.className = "details-spec-item";
+    bed.innerHTML = `
+      <span class="details-spec-label">${I18N.translate("card.bedrooms")}</span>
+      <span class="details-spec-value">${property.bedrooms}</span>
+    `;
+    specsEl.appendChild(bed);
+
+    // Bathrooms
+    const bath = document.createElement("div");
+    bath.className = "details-spec-item";
+    bath.innerHTML = `
+      <span class="details-spec-label">${I18N.translate("card.bathrooms")}</span>
+      <span class="details-spec-value">${property.bathrooms}</span>
+    `;
+    specsEl.appendChild(bath);
+
+    // Area
+    const area = document.createElement("div");
+    area.className = "details-spec-item";
+    const areaLabel = I18N.translate("card.area").replace("{n}", "").trim() || "Area";
+    area.innerHTML = `
+      <span class="details-spec-label">${areaLabel}</span>
+      <span class="details-spec-value">${fmtArea(property.areaSqM)}</span>
+    `;
+    specsEl.appendChild(area);
+
+    // Year Built
+    if (property.yearBuilt) {
+      const yr = document.createElement("div");
+      yr.className = "details-spec-item";
+      yr.innerHTML = `
+        <span class="details-spec-label">${I18N.translate("card.yearBuilt")}</span>
+        <span class="details-spec-value">${property.yearBuilt}</span>
+      `;
+      specsEl.appendChild(yr);
+    }
+
+    // Parking
+    if (property.parking !== null && property.parking !== undefined) {
+      const prk = document.createElement("div");
+      prk.className = "details-spec-item";
+      prk.innerHTML = `
+        <span class="details-spec-label">${I18N.translate("card.parking")}</span>
+        <span class="details-spec-value">${property.parking}</span>
+      `;
+      specsEl.appendChild(prk);
+    }
+  }
+
+  if (amenitiesEl) {
+    amenitiesEl.innerHTML = "";
+    const feats = Array.isArray(property.features) ? property.features : [];
+    if (feats.length) {
+      feats.forEach(f => {
+        const badge = document.createElement("span");
+        badge.className = "details-amenity-badge";
+        badge.textContent = f;
+        amenitiesEl.appendChild(badge);
+      });
+    } else {
+      const fallback = document.createElement("span");
+      fallback.className = "details-amenity-badge";
+      fallback.textContent = "Luxury details";
+      amenitiesEl.appendChild(fallback);
+    }
+  }
+
+  if (landmarksEl && property.latitude && property.longitude) {
+    landmarksEl.innerHTML = "";
+    const keyLandmarks = [
+      { nameKey: "details.landmark.burj_khalifa", lat: 25.1972, lon: 55.2744 },
+      { nameKey: "details.landmark.palm_jumeirah", lat: 25.1124, lon: 55.1390 },
+      { nameKey: "details.landmark.dubai_marina", lat: 25.0801, lon: 55.1346 },
+      { nameKey: "details.landmark.mall_of_emirates", lat: 25.1181, lon: 55.2006 },
+      { nameKey: "details.landmark.dxb_airport", lat: 25.2532, lon: 55.3657 }
+    ];
+    keyLandmarks.forEach(item => {
+      const dist = calculateDistance(property.latitude, property.longitude, item.lat, item.lon);
+      const li = document.createElement("li");
+      li.textContent = t("details.distanceTo", { distance: dist.toFixed(1), landmark: I18N.translate(item.nameKey) });
+      landmarksEl.appendChild(li);
+    });
+  }
+
+  // Carousel
+  detailsCarouselIndex = 0;
+  detailsCarouselImages = Array.isArray(property.images) && property.images.length ? property.images : (property.imageUrl ? [property.imageUrl] : []);
+  renderCarousel();
+
+  // CTA handlers
+  const inqBtn = detailsDialog.querySelector("[data-details-inquiry]");
+  if (inqBtn) {
+    inqBtn.onclick = () => {
+      detailsDialog.close();
+      setTimeout(() => {
+        openInquiry({ dataset: { propertyId: property.id } });
+      }, 150);
+    };
+  }
+
+  const tourBtn = detailsDialog.querySelector("[data-details-tour]");
+  if (tourBtn) {
+    if (property.tourType && property.tourType !== "NONE" && property.tourUrl) {
+      tourBtn.hidden = false;
+      tourBtn.onclick = () => {
+        detailsDialog.close();
+        setTimeout(() => {
+          openTour(property.id);
+        }, 150);
+      };
+    } else {
+      tourBtn.hidden = true;
+    }
+  }
+
+  detailsDialog.showModal();
+}
+
+function renderCarousel() {
+  const track = detailsDialog.querySelector("[data-carousel-track]");
+  const nav = detailsDialog.querySelector("[data-carousel-nav]");
+  if (!track) return;
+
+  track.innerHTML = "";
+  if (nav) nav.innerHTML = "";
+
+  if (!detailsCarouselImages.length) {
+    const slide = document.createElement("li");
+    slide.className = "details-carousel__slide";
+    slide.innerHTML = `<div style="height:100%; display:grid; place-items:center; background:var(--forest); color:#fff;">No photos</div>`;
+    track.appendChild(slide);
+    return;
+  }
+
+  detailsCarouselImages.forEach((imgUrl, idx) => {
+    const slide = document.createElement("li");
+    slide.className = "details-carousel__slide";
+    
+    const img = document.createElement("img");
+    img.src = imgUrl;
+    img.alt = "";
+    img.loading = idx === 0 ? "eager" : "lazy";
+    slide.appendChild(img);
+    track.appendChild(slide);
+
+    if (nav && detailsCarouselImages.length > 1) {
+      const dot = document.createElement("button");
+      dot.className = `details-carousel__indicator ${idx === 0 ? "is-active" : ""}`;
+      dot.setAttribute("aria-label", `Slide ${idx + 1}`);
+      dot.addEventListener("click", () => goToCarouselSlide(idx));
+      nav.appendChild(dot);
+    }
+  });
+
+  goToCarouselSlide(0);
+}
+
+function goToCarouselSlide(idx) {
+  const track = detailsDialog.querySelector("[data-carousel-track]");
+  if (!track) return;
+  
+  const total = detailsCarouselImages.length;
+  if (!total) return;
+
+  detailsCarouselIndex = (idx + total) % total;
+  track.style.transform = `translateX(-${detailsCarouselIndex * 100}%)`;
+
+  const indicators = detailsDialog.querySelectorAll(".details-carousel__indicator");
+  indicators.forEach((dot, index) => {
+    dot.classList.toggle("is-active", index === detailsCarouselIndex);
+  });
+}
+
+// ============================================================
+//  Premium Feature: Comparison Dashboard
+// ============================================================
+
+let selectedCompareIds = [];
+const compareBar = document.querySelector("[data-compare-bar]");
+const compareThumbnails = document.querySelector("[data-compare-thumbnails]");
+const compareCount = document.querySelector("[data-compare-count]");
+const compareDialog = document.querySelector("[data-compare-dialog]");
+
+function toggleCompareProperty(propertyId, isChecked) {
+  const idx = selectedCompareIds.indexOf(propertyId);
+  if (isChecked) {
+    if (selectedCompareIds.length >= 3) {
+      toast.error(I18N.translate("compare.limit"));
+      const checkbox = document.querySelector(`.property-card__compare input[value="${propertyId}"]`);
+      if (checkbox) checkbox.checked = false;
+      return;
+    }
+    if (idx === -1) {
+      selectedCompareIds.push(propertyId);
+      toast.success(I18N.translate("compare.added"));
+    }
+  } else {
+    if (idx !== -1) {
+      selectedCompareIds.splice(idx, 1);
+      toast.info(I18N.translate("compare.removed"));
+    }
+  }
+  updateCompareBar();
+}
+
+function updateCompareBar() {
+  if (!compareBar) return;
+  if (selectedCompareIds.length === 0) {
+    compareBar.hidden = true;
+    return;
+  }
+
+  compareBar.hidden = false;
+  if (compareCount) compareCount.textContent = selectedCompareIds.length;
+
+  if (compareThumbnails) {
+    compareThumbnails.innerHTML = "";
+    selectedCompareIds.forEach(id => {
+      const p = availableProperties.find(item => item.id === id);
+      if (!p) return;
+
+      const thumb = document.createElement("div");
+      thumb.className = "compare-bar__thumb";
+
+      const img = document.createElement("img");
+      img.src = p.imageUrl || (Array.isArray(p.images) ? p.images[0] : "");
+      img.alt = "";
+      thumb.appendChild(img);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "compare-bar__thumb-remove";
+      removeBtn.innerHTML = "×";
+      removeBtn.addEventListener("click", () => {
+        const checkbox = document.querySelector(`.property-card__compare input[value="${id}"]`);
+        if (checkbox) checkbox.checked = false;
+        toggleCompareProperty(id, false);
+      });
+      thumb.appendChild(removeBtn);
+
+      compareThumbnails.appendChild(thumb);
+    });
+  }
+}
+
+function clearCompareSelection() {
+  selectedCompareIds = [];
+  document.querySelectorAll(".property-card__compare input").forEach(input => {
+    input.checked = false;
+  });
+  updateCompareBar();
+}
+
+function openComparison() {
+  if (!compareDialog) return;
+  const table = compareDialog.querySelector("[data-compare-table]");
+  if (!table) return;
+
+  table.innerHTML = "";
+
+  const properties = selectedCompareIds
+    .map(id => availableProperties.find(p => p.id === id))
+    .filter(Boolean);
+
+  if (!properties.length) return;
+
+  // Title / Image Row
+  const r1 = document.createElement("tr");
+  r1.appendChild(createTextElement("th", "", I18N.translate("details.title")));
+  properties.forEach(p => {
+    const td = document.createElement("td");
+    td.className = "compare-table__header-cell";
+    td.innerHTML = `
+      <div class="compare-table__header-card">
+        <div class="compare-table__header-img">
+          <img src="${p.imageUrl || (Array.isArray(p.images) ? p.images[0] : '')}" alt="">
+        </div>
+        <h4 class="compare-table__header-title">${p.title}</h4>
+        <p class="compare-table__header-loc">${p.location}</p>
+      </div>
+    `;
+    r1.appendChild(td);
+  });
+  table.appendChild(r1);
+
+  // Price Row
+  const r2 = document.createElement("tr");
+  const priceLabel = I18N.translate("filter.price.minLabel").split(",")[0] || "Price";
+  r2.appendChild(createTextElement("th", "", priceLabel));
+  properties.forEach(p => {
+    const td = document.createElement("td");
+    td.style.fontWeight = "700";
+    td.style.color = "var(--forest)";
+    td.textContent = fmtPrice(p.askingPriceUsd);
+    r2.appendChild(td);
+  });
+  table.appendChild(r2);
+
+  // Price per SqM Row
+  const r3 = document.createElement("tr");
+  const psqmLabel = I18N.translate("card.pricePerSqMShort").replace("{price}", "").trim() || "Price / m²";
+  r3.appendChild(createTextElement("th", "", psqmLabel));
+  properties.forEach(p => {
+    const td = document.createElement("td");
+    if (p.askingPriceUsd && p.areaSqM) {
+      const perSqm = Math.round(p.askingPriceUsd / p.areaSqM);
+      td.textContent = fmtPrice(perSqm);
+    } else {
+      td.textContent = "—";
+    }
+    r3.appendChild(td);
+  });
+  table.appendChild(r3);
+
+  // Area Row
+  const r4 = document.createElement("tr");
+  const areaLabel = I18N.translate("card.area").replace("{n}", "").trim() || "Area";
+  r4.appendChild(createTextElement("th", "", areaLabel));
+  properties.forEach(p => {
+    const td = document.createElement("td");
+    td.textContent = fmtArea(p.areaSqM);
+    r4.appendChild(td);
+  });
+  table.appendChild(r4);
+
+  // Bedrooms Row
+  const r5 = document.createElement("tr");
+  r5.appendChild(createTextElement("th", "", I18N.translate("card.bedrooms")));
+  properties.forEach(p => {
+    const td = document.createElement("td");
+    td.textContent = p.bedrooms;
+    r5.appendChild(td);
+  });
+  table.appendChild(r5);
+
+  // Bathrooms Row
+  const r6 = document.createElement("tr");
+  r6.appendChild(createTextElement("th", "", I18N.translate("card.bathrooms")));
+  properties.forEach(p => {
+    const td = document.createElement("td");
+    td.textContent = p.bathrooms;
+    r6.appendChild(td);
+  });
+  table.appendChild(r6);
+
+  // Year Built Row
+  const r7 = document.createElement("tr");
+  r7.appendChild(createTextElement("th", "", I18N.translate("card.yearBuilt")));
+  properties.forEach(p => {
+    const td = document.createElement("td");
+    td.textContent = p.yearBuilt || "—";
+    r7.appendChild(td);
+  });
+  table.appendChild(r7);
+
+  // Parking Row
+  const r8 = document.createElement("tr");
+  r8.appendChild(createTextElement("th", "", I18N.translate("card.parking")));
+  properties.forEach(p => {
+    const td = document.createElement("td");
+    td.textContent = p.parking !== null && p.parking !== undefined ? p.parking : "—";
+    r8.appendChild(td);
+  });
+  table.appendChild(r8);
+
+  // Features Row
+  const r9 = document.createElement("tr");
+  r9.appendChild(createTextElement("th", "", I18N.translate("card.features")));
+  properties.forEach(p => {
+    const td = document.createElement("td");
+    const ul = document.createElement("ul");
+    ul.className = "compare-table__feature-list";
+    const feats = Array.isArray(p.features) ? p.features : [];
+    if (feats.length) {
+      feats.forEach(f => {
+        const li = document.createElement("li");
+        li.className = "compare-table__feature-tag";
+        li.textContent = f;
+        ul.appendChild(li);
+      });
+    } else {
+      ul.textContent = "—";
+    }
+    td.appendChild(ul);
+    r9.appendChild(td);
+  });
+  table.appendChild(r9);
+
+  // Actions Row
+  const r10 = document.createElement("tr");
+  r10.appendChild(createTextElement("th", "", ""));
+  properties.forEach(p => {
+    const td = document.createElement("td");
+    td.className = "compare-table__actions";
+
+    const inq = document.createElement("button");
+    inq.className = "button button--dark button--full";
+    inq.textContent = I18N.translate("card.cta.inquire");
+    inq.onclick = () => {
+      compareDialog.close();
+      setTimeout(() => {
+        openInquiry({ dataset: { propertyId: p.id } });
+      }, 150);
+    };
+    td.appendChild(inq);
+
+    if (p.tourType && p.tourType !== "NONE" && p.tourUrl) {
+      const tour = document.createElement("button");
+      tour.className = "button button--outline button--full";
+      tour.textContent = tourTypeLabel(p.tourType);
+      tour.onclick = () => {
+        compareDialog.close();
+        setTimeout(() => {
+          openTour(p.id);
+        }, 150);
+      };
+      td.appendChild(tour);
+    }
+    r10.appendChild(td);
+  });
+  table.appendChild(r10);
+
+  compareDialog.showModal();
+}
+
 // ----- Locale change handling -----
 
 document.addEventListener("locale:change", () => {
@@ -884,6 +1416,7 @@ document.addEventListener("locale:change", () => {
       const totalItems = availableProperties.length;
       listingCount.textContent = formatListingSummary(availableProperties.length, totalItems);
     }
+    updateCompareBar();
   } else {
     // Restore the loading placeholder text in the right locale
     if (listingCount) listingCount.textContent = I18N.translate("catalog.loading");
