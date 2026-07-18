@@ -290,8 +290,8 @@ def initialize_database() -> None:
                 4.0,
                 310,
                 ListingStatus.ACTIVE.value,
-                TourType.VIDEO_3D.value,
-                "https://example.com/tours/coastal-villa",
+                TourType.MODEL_3D.value,
+                "/static/models/villa.glb",
                 created_at,
             ),
             (
