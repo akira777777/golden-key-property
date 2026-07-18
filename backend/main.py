@@ -471,7 +471,7 @@ def alter_table_add_tour_columns():
                 "https://images.unsplash.com/photo-1600596542815-ffad4c153859?w=1200&q=80",
                 "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80",
                 "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&q=80",
-                "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80",
+                "https://images.unsplash.com/photo-160085154340-be6161a56a0c?w=1200&q=80",
             ]),
             "latitude": 25.1124, "longitude": 55.1390,
             "year_built": 2020, "parking": 4,
