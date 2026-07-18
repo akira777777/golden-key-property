@@ -15,6 +15,15 @@ const ctx = await browser.newContext({
 });
 const page = await ctx.newPage();
 
+page.on("console", (msg) => {
+  if (msg.type() === "error") {
+    console.error(`[CONSOLE ERROR] ${msg.text()}`);
+  }
+});
+page.on("pageerror", (err) => {
+  console.error(`[PAGE EXCEPTION] ${err.stack || err.message}`);
+});
+
 const shots = [
   { name: "01-landing-hero",      url: "http://127.0.0.1:8765/", wait: 1500, full: false },
   { name: "02-landing-fullpage",  url: "http://127.0.0.1:8765/", wait: 2500, full: true },
@@ -34,7 +43,7 @@ for (const s of shots) {
     await page.screenshot({ path: file, fullPage: s.full });
     const size = fs.statSync(file).size;
     const ms = Date.now() - t0;
-    results.push({ name: s.name, status: resp.status(), size_kb: Math.round(size / 1024), ms, file });
+    results.push({ name: s.name, status: resp ? resp.status() : 200, size_kb: Math.round(size / 1024), ms, file });
   } catch (e) {
     results.push({ name: s.name, error: e.message });
   }

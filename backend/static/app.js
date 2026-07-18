@@ -250,7 +250,7 @@ function createPropertyCard(property) {
   compareInput.value = property.id;
   compareInput.checked = selectedCompareIds.includes(property.id);
   compareInput.addEventListener("change", (e) => {
-    toggleCompareProperty(property.id, e.target.checked);
+    toggleCompareProperty(property, e.target.checked);
   });
 
   const compareSpan = document.createElement("span");
@@ -838,6 +838,11 @@ function configureDialogPolish() {
         lastDialogTrigger = null;
       }
     });
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) {
+        dialog.close();
+      }
+    });
   });
 }
 
@@ -1103,13 +1108,22 @@ function renderCarousel() {
   track.innerHTML = "";
   if (nav) nav.innerHTML = "";
 
+  const prevBtn = detailsDialog.querySelector("[data-carousel-prev]");
+  const nextBtn = detailsDialog.querySelector("[data-carousel-next]");
+
   if (!detailsCarouselImages.length) {
     const slide = document.createElement("li");
     slide.className = "details-carousel__slide";
     slide.innerHTML = `<div style="height:100%; display:grid; place-items:center; background:var(--forest); color:#fff;">No photos</div>`;
     track.appendChild(slide);
+    if (prevBtn) prevBtn.hidden = true;
+    if (nextBtn) nextBtn.hidden = true;
     return;
   }
+
+  const showControls = detailsCarouselImages.length > 1;
+  if (prevBtn) prevBtn.hidden = !showControls;
+  if (nextBtn) nextBtn.hidden = !showControls;
 
   detailsCarouselImages.forEach((imgUrl, idx) => {
     const slide = document.createElement("li");
@@ -1155,30 +1169,41 @@ function goToCarouselSlide(idx) {
 // ============================================================
 
 let selectedCompareIds = [];
+let selectedCompareCache = {}; // Cache selected property objects
 const compareBar = document.querySelector("[data-compare-bar]");
 const compareThumbnails = document.querySelector("[data-compare-thumbnails]");
 const compareCount = document.querySelector("[data-compare-count]");
 const compareDialog = document.querySelector("[data-compare-dialog]");
 
-function toggleCompareProperty(propertyId, isChecked) {
+function toggleCompareProperty(property, isChecked) {
+  const propertyId = typeof property === "object" ? property.id : property;
   const idx = selectedCompareIds.indexOf(propertyId);
   if (isChecked) {
     if (selectedCompareIds.length >= 3) {
       toast.error(I18N.translate("compare.limit"));
-      const checkbox = document.querySelector(`.property-card__compare input[value="${propertyId}"]`);
-      if (checkbox) checkbox.checked = false;
+      document.querySelectorAll(`.property-card__compare input[value="${propertyId}"]`).forEach(input => {
+        input.checked = false;
+      });
       return;
     }
     if (idx === -1) {
       selectedCompareIds.push(propertyId);
+      if (typeof property === "object") {
+        selectedCompareCache[propertyId] = property;
+      }
       toast.success(I18N.translate("compare.added"));
     }
   } else {
     if (idx !== -1) {
       selectedCompareIds.splice(idx, 1);
+      delete selectedCompareCache[propertyId];
       toast.info(I18N.translate("compare.removed"));
     }
   }
+  // Sync all checkboxes on the page for this property
+  document.querySelectorAll(`.property-card__compare input[value="${propertyId}"]`).forEach(input => {
+    input.checked = isChecked;
+  });
   updateCompareBar();
 }
 
@@ -1195,7 +1220,7 @@ function updateCompareBar() {
   if (compareThumbnails) {
     compareThumbnails.innerHTML = "";
     selectedCompareIds.forEach(id => {
-      const p = availableProperties.find(item => item.id === id);
+      const p = selectedCompareCache[id] || availableProperties.find(item => item.id === id);
       if (!p) return;
 
       const thumb = document.createElement("div");
@@ -1210,9 +1235,7 @@ function updateCompareBar() {
       removeBtn.className = "compare-bar__thumb-remove";
       removeBtn.innerHTML = "×";
       removeBtn.addEventListener("click", () => {
-        const checkbox = document.querySelector(`.property-card__compare input[value="${id}"]`);
-        if (checkbox) checkbox.checked = false;
-        toggleCompareProperty(id, false);
+        toggleCompareProperty(p, false);
       });
       thumb.appendChild(removeBtn);
 
@@ -1223,6 +1246,7 @@ function updateCompareBar() {
 
 function clearCompareSelection() {
   selectedCompareIds = [];
+  selectedCompareCache = {};
   document.querySelectorAll(".property-card__compare input").forEach(input => {
     input.checked = false;
   });
@@ -1237,7 +1261,7 @@ function openComparison() {
   table.innerHTML = "";
 
   const properties = selectedCompareIds
-    .map(id => availableProperties.find(p => p.id === id))
+    .map(id => selectedCompareCache[id] || availableProperties.find(p => p.id === id))
     .filter(Boolean);
 
   if (!properties.length) return;
