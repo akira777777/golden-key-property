@@ -2038,3 +2038,17 @@
   }
 }
 
+.tour-model-viewer {
+  width: 100%;
+  height: 560px;
+  background-color: #0f1417;
+}
+
+.carousel-no-photos {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: var(--forest);
+  color: #fff;
+}
+
