@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#122720" />
+    <meta
+      name="description"
+      content="Golden Key — международная недвижимость с персональным подбором и прозрачным сопровождением сделки."
+    />
+    <title>Golden Key — избранная недвижимость</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Перейти к содержанию</a>
+
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Golden Key — на главную">
+        <span class="brand__mark" aria-hidden="true">GK</span>
+        <span class="brand__name">Golden Key</span>
+      </a>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-navigation"
+        data-menu-toggle
+      >
+        <span class="sr-only">Открыть навигацию</span>
+        <span aria-hidden="true">Меню</span>
+      </button>
+
+      <nav class="site-nav" id="site-navigation" aria-label="Основная навигация" data-site-nav>
+        <a href="#catalog">Объекты</a>
+        <a href="#approach">Подход</a>
+        <a href="#partners">Партнёрам</a>
+      </nav>
+
+      <button class="header-cta" type="button" data-open-inquiry>
+        Запросить подбор
+      </button>
+    </header>
+
+    <main id="main-content">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__media" aria-hidden="true">
+          <img src="/static/hero-coastal-villa.png" alt="" />
+        </div>
+        <div class="hero__veil" aria-hidden="true"></div>
+        <div class="hero__content container">
+          <p class="eyebrow eyebrow--light">International property advisory</p>
+          <h1 id="hero-title">Недвижимость, которая ощущается как верное решение.</h1>
+          <p class="hero__lead">
+            Тщательно отобранные объекты в знаковых локациях и персональное сопровождение,
+            в котором понятен каждый следующий шаг.
+          </p>
+          <div class="hero__actions">
+            <button class="button button--light" type="button" data-open-inquiry>
+              Подобрать объект
+              <span aria-hidden="true">↗</span>
+            </button>
+            <a class="text-link text-link--light" href="#catalog">Смотреть предложения</a>
+          </div>
+        </div>
+        <div class="hero__footer container" aria-label="Ключевые преимущества">
+          <p>Частный подбор</p>
+          <p>Проверяемая информация</p>
+          <p>Сопровождение без лишнего шума</p>
+        </div>
+      </section>
+
+      <section class="introduction container" aria-labelledby="introduction-title">
+        <div class="section-label">
+          <span>01</span>
+          <p>Не каталог ради каталога</p>
+        </div>
+        <div class="introduction__copy">
+          <p class="kicker">Golden Key Property</p>
+          <h2 id="introduction-title">Сначала понимаем ваш ритм жизни. Затем открываем нужные двери.</h2>
+          <p>
+            Мы работаем с ограниченным числом запросов одновременно: так консультант остаётся
+            в контексте, а рекомендации не превращаются в поток ссылок.
+          </p>
+          <a class="text-link" href="#approach">Как устроен подбор <span aria-hidden="true">→</span></a>
+        </div>
+      </section>
+
+      <section class="catalog-section" id="catalog" aria-labelledby="catalog-title">
+        <div class="container catalog-section__heading">
+          <div>
+            <p class="eyebrow">Selected listings</p>
+            <h2 id="catalog-title">Выберите пространство, к которому хочется вернуться.</h2>
+          </div>
+          <div class="catalog-section__meta">
+            <p data-listing-count aria-live="polite">Загружаем предложения…</p>
+            <button class="text-link text-link--button" type="button" data-open-inquiry>
+              Запросить персональный подбор <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+        <form class="container catalog-filters" data-catalog-filters aria-label="Фильтры каталога">
+          <div class="filter-field filter-field--wide">
+            <label for="location-filter">Локация</label>
+            <input
+              id="location-filter"
+              name="location"
+              type="search"
+              autocomplete="off"
+              placeholder="Город, район или страна"
+              data-filter-location
+            />
+          </div>
+          <div class="filter-field">
+            <label for="min-price-filter">Цена от, USD</label>
+            <input
+              id="min-price-filter"
+              name="minPrice"
+              type="number"
+              inputmode="numeric"
+              min="0"
+              step="50000"
+              placeholder="500000"
+              data-filter-min-price
+            />
+          </div>
+          <div class="filter-field">
+            <label for="max-price-filter">Цена до, USD</label>
+            <input
+              id="max-price-filter"
+              name="maxPrice"
+              type="number"
+              inputmode="numeric"
+              min="0"
+              step="50000"
+              placeholder="3000000"
+              data-filter-max-price
+            />
+          </div>
+          <div class="filter-field">
+            <label for="status-filter">Статус</label>
+            <select id="status-filter" name="listingStatus" data-filter-status>
+              <option value="ACTIVE">Доступные</option>
+              <option value="PENDING">На согласовании</option>
+              <option value="SOLD">Проданные</option>
+            </select>
+          </div>
+          <div class="catalog-filters__actions">
+            <button class="button button--dark" type="submit">Показать</button>
+            <button class="text-link text-link--button" type="button" data-reset-filters>
+              Сбросить
+            </button>
+          </div>
+        </form>
+        <div class="container property-grid" data-catalog aria-live="polite"></div>
+        <noscript>
+          <p class="container catalog-notice">
+            Для отображения каталога включите JavaScript или используйте API напрямую.
+          </p>
+        </noscript>
+      </section>
+
+      <section class="approach container" id="approach" aria-labelledby="approach-title">
+        <div class="section-label">
+          <span>02</span>
+          <p>Путь к объекту</p>
+        </div>
+        <div class="approach__main">
+          <p class="kicker">From brief to keys</p>
+          <h2 id="approach-title">Собранный процесс, который оставляет место для личного.</h2>
+        </div>
+        <ol class="approach__steps">
+          <li>
+            <span>01</span>
+            <h3>Понимаем задачу</h3>
+            <p>Обсуждаем локацию, сценарии жизни, сроки и то, что для вас не подлежит компромиссу.</p>
+          </li>
+          <li>
+            <span>02</span>
+            <h3>Сужаем выбор</h3>
+            <p>Показываем релевантные варианты и помогаем сравнить их на языке реальных решений.</p>
+          </li>
+          <li>
+            <span>03</span>
+            <h3>Двигаемся уверенно</h3>
+            <p>Координируем контакт с агентом и напоминаем, какие сведения нужно подтвердить до сделки.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="partners" id="partners" aria-labelledby="partners-title">
+        <div class="container partners__grid">
+          <div class="partners__lead">
+            <p class="eyebrow eyebrow--light">For partners</p>
+            <h2 id="partners-title">Для тех, кто ценит сдержанную работу с сильными объектами.</h2>
+          </div>
+          <div class="partners__copy">
+            <p>
+              Если вы представляете семейный офис, девелоперскую команду или профессионального
+              партнёра, начните с вводной беседы о критериях отбора и формате взаимодействия.
+            </p>
+            <a class="button button--outline" href="#catalog">Изучить подборку <span aria-hidden="true">↗</span></a>
+            <p class="partners__notice">
+              Сайт не предлагает финансовые продукты, не принимает переводы и не гарантирует доходность.
+              Любые решения требуют независимой проверки и профессиональной консультации.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="contact-cta container" aria-labelledby="contact-title">
+        <div>
+          <p class="eyebrow">Start with a conversation</p>
+          <h2 id="contact-title">Расскажите, какой дом вы ищете.</h2>
+        </div>
+        <button class="button button--dark" type="button" data-open-inquiry>
+          Оставить запрос <span aria-hidden="true">↗</span>
+        </button>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <div>
+          <a class="brand brand--footer" href="/" aria-label="Golden Key — на главную">
+            <span class="brand__mark" aria-hidden="true">GK</span>
+            <span class="brand__name">Golden Key</span>
+          </a>
+          <p>International property advisory</p>
+        </div>
+        <p class="site-footer__legal">
+          Информация по объектам носит ознакомительный характер и требует проверки у агента и владельца.
+        </p>
+        <p>© <span data-current-year></span> Golden Key Property</p>
+      </div>
+    </footer>
+
+    <dialog class="inquiry-dialog" aria-labelledby="inquiry-title" data-inquiry-dialog>
+      <div class="inquiry-dialog__layout">
+        <div class="inquiry-dialog__intro">
+          <p class="eyebrow eyebrow--light">Private enquiry</p>
+          <h2 id="inquiry-title">Начнём с нескольких деталей.</h2>
+          <p>Консультант свяжется только по вашему запросу и только по выбранному объекту.</p>
+        </div>
+        <div class="inquiry-dialog__form-wrap">
+          <button class="dialog-close" type="button" aria-label="Закрыть форму" data-close-inquiry>
+            <span aria-hidden="true">×</span>
+          </button>
+          <form id="inquiry-form" novalidate>
+            <div class="form-field">
+              <label for="propertyId">Объект</label>
+              <select id="propertyId" name="propertyId" required data-property-select>
+                <option value="">Загружаем объекты…</option>
+              </select>
+            </div>
+            <div class="form-field form-field--split">
+              <div>
+                <label for="fullName">Имя и фамилия</label>
+                <input id="fullName" name="fullName" autocomplete="name" minlength="2" maxlength="120" required />
+              </div>
+              <div>
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required />
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="phone">Телефон <span>(необязательно)</span></label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="32" />
+            </div>
+            <div class="form-field">
+              <label for="message">О чём вы хотите поговорить?</label>
+              <textarea id="message" name="message" rows="4" minlength="10" maxlength="2000" required></textarea>
+            </div>
+            <label class="consent-field" for="consentToContact">
+              <input id="consentToContact" name="consentToContact" type="checkbox" required />
+              <span>Я согласен(-на), чтобы со мной связались по этому запросу.</span>
+            </label>
+            <p class="form-status" data-form-status aria-live="polite"></p>
+            <button class="button button--dark button--full" type="submit">Отправить запрос <span aria-hidden="true">↗</span></button>
+            <p class="form-note">Не отправляйте через форму документы, платёжные данные или конфиденциальную информацию.</p>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="tour-dialog" aria-labelledby="tour-title" data-tour-dialog>
+      <div class="tour-dialog__layout">
+        <div class="tour-dialog__header">
+          <div>
+            <p class="eyebrow eyebrow--light">Virtual tour</p>
+            <h2 id="tour-title" data-tour-title>3D-прогулка</h2>
+          </div>
+          <button class="dialog-close" type="button" aria-label="Закрыть тур" data-close-tour>
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="tour-viewport" data-tour-viewport>
+          <div class="tour-placeholder" data-tour-placeholder>
+            <p>Загружаем 3D-прогулку…</p>
+          </div>
+          <model-viewer
+            data-tour-model
+            hidden
+            alt="3D модель объекта"
+            camera-controls
+            auto-rotate
+            ar
+            shadow-intensity="1"
+            exposure="0.8"
+            style="width: 100%; height: 520px;"
+          ></model-viewer>
+          <iframe data-tour-frame hidden allow="fullscreen" loading="lazy"></iframe>
+        </div>
+        <p class="tour-notice" data-tour-notice></p>
+      </div>
+    </dialog>
+
+    <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
