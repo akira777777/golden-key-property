@@ -72,9 +72,9 @@ function getNumberFormatter(locale) {
 
 const TRANSLATIONS = {
   ru: {
-    "meta.title": "Golden Key — избранная недвижимость",
+    "meta.title": "каталог недвижимости в Дубае",
     "meta.description":
-      "Golden Key — международная недвижимость с персональным подбором и прозрачным сопровождением сделки.",
+      "каталог элитной недвижимости в Дубае с персональным подбором и прозрачным сопровождением",
     "a11y.skip": "Перейти к содержанию",
 
     "nav.catalog": "Объекты",
@@ -85,17 +85,17 @@ const TRANSLATIONS = {
     "nav.menu.close": "Закрыть навигацию",
     "header.cta": "Запросить подбор",
 
-    "hero.eyebrow": "International property advisory",
-    "hero.title.a": "Недвижимость, которая",
-    "hero.title.b": "ощущается",
-    "hero.title.c": "как верное решение.",
+    "hero.eyebrow": "Dubai property catalogue",
+    "hero.title.a": "Недвижимость в",
+    "hero.title.b": "Дубае",
+    "hero.title.c": "— каталог, которому можно доверять.",
     "hero.lead":
-      "Тщательно отобранные объекты в знаковых локациях и персональное сопровождение, в котором понятен каждый следующий шаг.",
+      "Информационная подборка объектов в знаковых районах Дубая — от пентхаусов Downtown до вилл на Palm Jumeirah.",
     "hero.cta.primary": "Подобрать объект",
     "hero.cta.secondary": "Смотреть предложения",
-    "hero.pillars.1": "Частный подбор",
+    "hero.pillars.1": "Лимитированный подбор",
     "hero.pillars.2": "Проверяемая информация",
-    "hero.pillars.3": "Сопровождение без лишнего шума",
+    "hero.pillars.3": "Сопровождение без спешки",
 
     "intro.label": "Не каталог ради каталога",
     "intro.kicker": "Golden Key Property",
@@ -157,10 +157,10 @@ const TRANSLATIONS = {
     "partners.title.b": "с сильными",
     "partners.title.c": "объектами.",
     "partners.body":
-      "Если вы представляете семейный офис, девелоперскую команду или профессионального партнёра, начните с вводной беседы о критериях отбора и формате взаимодействия.",
+      "Если вы рассматриваете Дубай как направление или ищете резиденцию для жизни, начните с вводной беседы о ваших целях и бюджете.",
     "partners.cta": "Изучить подборку",
     "partners.notice":
-      "Сайт не предлагает финансовые продукты, не принимает переводы и не гарантирует доходность. Любые решения требуют независимой проверки и профессиональной консультации.",
+      "Сайт не предлагает финансовые продукты, не принимает переводы и не гарантирует доходность.",
 
     "contact.eyebrow": "Start with a conversation",
     "contact.title.a": "Расскажите, какой",
@@ -168,7 +168,7 @@ const TRANSLATIONS = {
     "contact.title.c": "вы ищете.",
     "contact.cta": "Оставить запрос",
 
-    "footer.tagline": "International property advisory",
+    "footer.tagline": "Dubai property advisory",
     "footer.legal":
       "Информация по объектам носит ознакомительный характер и требует проверки у агента и владельца.",
 
@@ -410,9 +410,9 @@ const TRANSLATIONS = {
   },
 
   en: {
-    "meta.title": "Golden Key — curated property",
+    "meta.title": "Dubai property catalogue",
     "meta.description":
-      "Golden Key — international property with a personal shortlist and transparent deal support.",
+      "Dubai property catalogue with personal selection and transparent guidance.",
     "a11y.skip": "Skip to main content",
 
     "nav.catalog": "Listings",
@@ -423,26 +423,26 @@ const TRANSLATIONS = {
     "nav.menu.close": "Close navigation",
     "header.cta": "Request a shortlist",
 
-    "hero.eyebrow": "International property advisory",
-    "hero.title.a": "Property that",
-    "hero.title.b": "feels like",
-    "hero.title.c": "the right decision.",
+    "hero.eyebrow": "Dubai property catalogue",
+    "hero.title.a": "Property in",
+    "hero.title.b": "Dubai",
+    "hero.title.c": "— a catalogue you can trust.",
     "hero.lead":
-      "Hand-picked homes in iconic locations and personal guidance where the next step is always clear.",
+      "A curated selection in Dubai's signature districts — from Downtown penthouses to Palm Jumeirah villas.",
     "hero.cta.primary": "Find a home",
     "hero.cta.secondary": "See listings",
-    "hero.pillars.1": "Private shortlist",
-    "hero.pillars.2": "Verifiable facts",
-    "hero.pillars.3": "Quiet, thorough support",
+    "hero.pillars.1": "Limited intake",
+    "hero.pillars.2": "Verifiable information",
+    "hero.pillars.3": "Unhurried guidance",
 
-    "intro.label": "Not a catalogue for catalogue's sake",
+    "intro.label": "Not a catalogue for the sake of it",
     "intro.kicker": "Golden Key Property",
-    "intro.title.a": "First we understand your rhythm.",
+    "intro.title.a": "First we understand your rhythm of life.",
     "intro.title.b": "Then",
     "intro.title.c": "we open the right doors.",
     "intro.body":
-      "We work with a limited number of inquiries at once, so your consultant stays close to the brief and the recommendations stay focused, not noisy.",
-    "intro.cta": "How the shortlist works",
+      "We work on a limited number of enquiries at a time: the consultant stays in context, and recommendations never become a flood of links.",
+    "intro.cta": "How selection works",
 
     "catalog.eyebrow": "Selected listings",
     "catalog.title.a": "Pick a space you",
@@ -495,10 +495,10 @@ const TRANSLATIONS = {
     "partners.title.b": "with strong",
     "partners.title.c": "listings.",
     "partners.body":
-      "If you represent a family office, a development team or an institutional partner, begin with a short conversation about selection criteria and how we collaborate.",
+      "If you're considering Dubai as a destination or looking for a residence, start with an introductory conversation about your goals and budget.",
     "partners.cta": "Browse the selection",
     "partners.notice":
-      "This site does not offer financial products, accept transfers or guarantee returns. Any decision requires independent verification and professional advice.",
+      "This site does not offer financial products, does not accept transfers, and does not guarantee returns.",
 
     "contact.eyebrow": "Start with a conversation",
     "contact.title.a": "Tell us the",
@@ -506,7 +506,7 @@ const TRANSLATIONS = {
     "contact.title.c": "you are looking for.",
     "contact.cta": "Leave an inquiry",
 
-    "footer.tagline": "International property advisory",
+    "footer.tagline": "Dubai property advisory",
     "footer.legal":
       "Listing information is illustrative and must be verified with the agent and owner.",
 
@@ -748,9 +748,9 @@ const TRANSLATIONS = {
   },
 
   de: {
-    "meta.title": "Golden Key — kuratierte Immobilien",
+    "meta.title": "Immobilienkatalog Dubai",
     "meta.description":
-      "Golden Key — internationale Immobilien mit persönlicher Auswahl und transparenter Begleitung bis zum Abschluss.",
+      "Dubai-Immobilienkatalog mit persönlicher Auswahl und transparenter Begleitung.",
     "a11y.skip": "Zum Inhalt springen",
 
     "nav.catalog": "Objekte",
@@ -761,26 +761,26 @@ const TRANSLATIONS = {
     "nav.menu.close": "Navigation schließen",
     "header.cta": "Auswahl anfragen",
 
-    "hero.eyebrow": "International property advisory",
-    "hero.title.a": "Immobilien, die sich",
-    "hero.title.b": "richtig",
-    "hero.title.c": "anfühlen.",
+    "hero.eyebrow": "Dubai property catalogue",
+    "hero.title.a": "Immobilien in",
+    "hero.title.b": "Dubai",
+    "hero.title.c": "— ein Katalog, dem Sie vertrauen können.",
     "hero.lead":
-      "Ausgewählte Objekte in ikonischen Lagen und persönliche Begleitung, in der jeder nächste Schritt klar ist.",
+      "Kuratierte Auswahl in Dubais markanten Vierteln — von Downtown-Penthouse bis Palm-Jumeirah-Villa.",
     "hero.cta.primary": "Objekt finden",
     "hero.cta.secondary": "Auswahl ansehen",
-    "hero.pillars.1": "Private Auswahl",
-    "hero.pillars.2": "Überprüfbare Fakten",
-    "hero.pillars.3": "Stille, gründliche Begleitung",
+    "hero.pillars.1": "Begrenzte Auswahl",
+    "hero.pillars.2": "Überprüfbare Informationen",
+    "hero.pillars.3": "Begleitung ohne Eile",
 
     "intro.label": "Kein Katalog um des Katalogs willen",
     "intro.kicker": "Golden Key Property",
-    "intro.title.a": "Zuerst verstehen wir Ihren Rhythmus.",
+    "intro.title.a": "Zuerst verstehen wir Ihren Lebensrhythmus.",
     "intro.title.b": "Dann",
     "intro.title.c": "öffnen wir die richtigen Türen.",
     "intro.body":
-      "Wir betreuen nur eine begrenzte Anzahl von Anfragen gleichzeitig — so bleibt Ihre Beraterin im Kontext und die Empfehlungen fokussiert, nicht laut.",
-    "intro.cta": "So funktioniert die Auswahl",
+      "Wir betreuen eine begrenzte Anzahl von Anfragen gleichzeitig: so bleibt der Berater im Kontext und Empfehlungen werden nicht zu einer Link-Flut.",
+    "intro.cta": "Wie die Auswahl funktioniert",
 
     "catalog.eyebrow": "Selected listings",
     "catalog.title.a": "Wählen Sie einen Ort, zu dem Sie",
@@ -833,10 +833,10 @@ const TRANSLATIONS = {
     "partners.title.b": "starken",
     "partners.title.c": "Objekten schätzen.",
     "partners.body":
-      "Wenn Sie ein Family Office, ein Entwicklerteam oder einen institutionellen Partner vertreten, beginnen Sie mit einem kurzen Gespräch zu Auswahlkriterien und Zusammenarbeit.",
+      "Wenn Sie Dubai als Ziel in Betracht ziehen oder eine Residenz suchen, beginnen Sie mit einem Erstgespräch über Ihre Ziele und Ihr Budget.",
     "partners.cta": "Auswahl ansehen",
     "partners.notice":
-      "Diese Website bietet keine Finanzprodukte an, nimmt keine Überweisungen entgegen und garantiert keine Rendite. Jede Entscheidung erfordert unabhängige Prüfung und professionelle Beratung.",
+      "Diese Website bietet keine Finanzprodukte, akzeptiert keine Überweisungen und garantiert keine Rendite.",
 
     "contact.eyebrow": "Start with a conversation",
     "contact.title.a": "Erzählen Sie uns, welches",
@@ -844,7 +844,7 @@ const TRANSLATIONS = {
     "contact.title.c": "Sie suchen.",
     "contact.cta": "Anfrage stellen",
 
-    "footer.tagline": "International property advisory",
+    "footer.tagline": "Dubai property advisory",
     "footer.legal":
       "Die Objektinformationen sind illustrativ und müssen mit Makler und Eigentümer verifiziert werden.",
 
@@ -1088,9 +1088,9 @@ const TRANSLATIONS = {
   },
 
   es: {
-    "meta.title": "Golden Key — propiedades seleccionadas",
+    "meta.title": "Catálogo inmobiliario Dubái",
     "meta.description":
-      "Golden Key — propiedad internacional con selección personal y acompañamiento transparente hasta el cierre.",
+      "Catálogo inmobiliario en Dubái con selección personal y acompañamiento transparente.",
     "a11y.skip": "Saltar al contenido",
 
     "nav.catalog": "Propiedades",
@@ -1101,25 +1101,25 @@ const TRANSLATIONS = {
     "nav.menu.close": "Cerrar navegación",
     "header.cta": "Pedir selección",
 
-    "hero.eyebrow": "International property advisory",
-    "hero.title.a": "Propiedades que se sienten como",
-    "hero.title.b": "la decisión",
-    "hero.title.c": "correcta.",
+    "hero.eyebrow": "Dubai property catalogue",
+    "hero.title.a": "Propiedad en",
+    "hero.title.b": "Dubái",
+    "hero.title.c": "— un catálogo en el que puede confiar.",
     "hero.lead":
-      "Propiedades seleccionadas en ubicaciones emblemáticas y un acompañamiento personal donde cada paso siguiente es claro.",
+      "Selección informativa en los barrios emblemáticos de Dubái — desde áticos en Downtown hasta villas en Palm Jumeirah.",
     "hero.cta.primary": "Encontrar una propiedad",
     "hero.cta.secondary": "Ver selección",
-    "hero.pillars.1": "Selección privada",
-    "hero.pillars.2": "Datos verificables",
-    "hero.pillars.3": "Acompañamiento sobrio",
+    "hero.pillars.1": "Selección limitada",
+    "hero.pillars.2": "Información verificable",
+    "hero.pillars.3": "Acompañamiento sin prisa",
 
     "intro.label": "No un catálogo por el catálogo",
     "intro.kicker": "Golden Key Property",
-    "intro.title.a": "Primero entendemos su ritmo.",
+    "intro.title.a": "Primero entendemos su ritmo de vida.",
     "intro.title.b": "Después",
     "intro.title.c": "abrimos las puertas correctas.",
     "intro.body":
-      "Trabajamos con un número limitado de consultas a la vez: así el asesor se mantiene cerca de su brief y las recomendaciones no se convierten en una lista ruidosa.",
+      "Trabajamos con un número limitado de consultas a la vez: el asesor mantiene el contexto, y las recomendaciones nunca se convierten en un flujo de enlaces.",
     "intro.cta": "Cómo funciona la selección",
 
     "catalog.eyebrow": "Selected listings",
@@ -1173,10 +1173,10 @@ const TRANSLATIONS = {
     "partners.title.b": "con propiedades",
     "partners.title.c": "sólidas.",
     "partners.body":
-      "Si representa a una family office, a un equipo promotor o a un aliado institucional, empiece con una breve conversación sobre criterios de selección y formato de colaboración.",
+      "Si considera Dubái como destino o busca una residencia, comience con una conversación introductoria sobre sus objetivos y presupuesto.",
     "partners.cta": "Ver la selección",
     "partners.notice":
-      "Este sitio no ofrece productos financieros, no recibe transferencias y no garantiza rentabilidad. Toda decisión requiere verificación independiente y asesoramiento profesional.",
+      "Este sitio no ofrece productos financieros, no acepta transferencias y no garantiza rentabilidad.",
 
     "contact.eyebrow": "Start with a conversation",
     "contact.title.a": "Cuéntenos qué",
@@ -1184,7 +1184,7 @@ const TRANSLATIONS = {
     "contact.title.c": "busca.",
     "contact.cta": "Dejar una consulta",
 
-    "footer.tagline": "International property advisory",
+    "footer.tagline": "Dubai property advisory",
     "footer.legal":
       "La información de las propiedades es ilustrativa y debe verificarse con el agente y el propietario.",
 
