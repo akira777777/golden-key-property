@@ -232,6 +232,21 @@ const TRANSLATIONS = {
     "word.similar.2": "похожих объектов",
     "word.availability.singular": "доступен",
     "word.availability.plural": "доступны",
+
+    "map.title": "Объекты на карте",
+    "map.viewProperty": "Смотреть объект",
+    "map.openInMaps": "Открыть в Google Maps",
+
+    "gallery.open": "Открыть галерею",
+    "gallery.close": "Закрыть",
+    "gallery.prev": "Предыдущее фото",
+    "gallery.next": "Следующее фото",
+    "gallery.counter": "{current} из {total}",
+
+    "card.yearBuilt": "Год постройки",
+    "card.parking": "Парковка",
+    "card.features": "Особенности",
+    "card.photos": "Фото ({count})",
   },
 
   en: {
@@ -395,6 +410,21 @@ const TRANSLATIONS = {
     "word.similar.2": "similar listings",
     "word.availability.singular": "available",
     "word.availability.plural": "available",
+
+    "map.title": "Listings on the map",
+    "map.viewProperty": "View property",
+    "map.openInMaps": "Open in Google Maps",
+
+    "gallery.open": "Open gallery",
+    "gallery.close": "Close",
+    "gallery.prev": "Previous photo",
+    "gallery.next": "Next photo",
+    "gallery.counter": "{current} of {total}",
+
+    "card.yearBuilt": "Year built",
+    "card.parking": "Parking",
+    "card.features": "Features",
+    "card.photos": "Photos ({count})",
   },
 
   de: {
@@ -560,6 +590,21 @@ const TRANSLATIONS = {
     "word.similar.2": "ähnliche Objekte",
     "word.availability.singular": "verfügbar",
     "word.availability.plural": "verfügbar",
+
+    "map.title": "Objekte auf der Karte",
+    "map.viewProperty": "Objekt ansehen",
+    "map.openInMaps": "In Google Maps öffnen",
+
+    "gallery.open": "Galerie öffnen",
+    "gallery.close": "Schließen",
+    "gallery.prev": "Vorheriges Foto",
+    "gallery.next": "Nächstes Foto",
+    "gallery.counter": "{current} von {total}",
+
+    "card.yearBuilt": "Baujahr",
+    "card.parking": "Stellplätze",
+    "card.features": "Ausstattung",
+    "card.photos": "Fotos ({count})",
   },
 
   es: {

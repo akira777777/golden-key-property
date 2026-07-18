@@ -353,7 +353,12 @@
         </div>
         <div class="tour-viewport" data-tour-viewport>
           <div class="tour-placeholder" data-tour-placeholder>
-            <p data-i18n="tour.loading">Загружаем 3D-прогулку…</p>
+            <div class="tour-spinner" aria-hidden="true"></div>
+            <p>Загружаем 3D-прогулку…</p>
+          </div>
+          <div class="tour-progress" data-tour-progress hidden>
+            <div class="tour-progress__bar" data-tour-progress-bar></div>
+            <span class="tour-progress__label" data-tour-progress-label>0%</span>
           </div>
           <model-viewer
             data-tour-model
@@ -361,12 +366,27 @@
             alt="3D модель объекта"
             camera-controls
             auto-rotate
+            touch-action="pan-y"
             ar
+            ar-modes="webxr scene-viewer quick-look"
+            ar-status="not-presenting"
             shadow-intensity="1"
-            exposure="0.8"
-            style="width: 100%; height: 520px;"
+            exposure="0.85"
+            environment-image="neutral"
+            style="width: 100%; height: 560px; background-color: #0f1417;"
           ></model-viewer>
           <iframe data-tour-frame hidden allow="fullscreen" loading="lazy"></iframe>
+          <div class="tour-controls" data-tour-controls hidden>
+            <button type="button" class="tour-control" data-tour-action="reset" aria-label="Сбросить камеру">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+                <polyline points="21 3 21 8 16 8" />
+                <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+                <polyline points="3 21 3 16 8 16" />
+              </svg>
+            </button>
+            <button type="button" class="tour-control" data-tour-action="ar" aria-label="Посмотреть в дополненной реальности">AR</button>
+          </div>
         </div>
         <p class="tour-notice" data-tour-notice></p>
       </div>

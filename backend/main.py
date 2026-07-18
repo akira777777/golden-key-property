@@ -243,6 +243,12 @@ def initialize_database() -> None:
             listing_status TEXT NOT NULL CHECK (listing_status IN ('ACTIVE', 'PENDING', 'SOLD')),
             tour_type TEXT NOT NULL DEFAULT 'NONE' CHECK (tour_type IN ('NONE', 'PHOTO_360', 'MODEL_3D', 'VIDEO_3D')),
             tour_url TEXT,
+            images TEXT DEFAULT '[]',
+            latitude REAL,
+            longitude REAL,
+            year_built INTEGER CHECK (year_built > 1800 AND year_built < 2100),
+            parking INTEGER CHECK (parking >= 0),
+            features TEXT DEFAULT '[]',
             created_at TEXT NOT NULL
         );
 
@@ -338,6 +344,22 @@ def initialize_database() -> None:
     connection.close()
 
 
+import json as _json
+
+
+def _safe_json_list(value: Any) -> list:
+    """Parse a JSON string column into a list, returning [] on any error."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    try:
+        parsed = _json.loads(value)
+        return parsed if isinstance(parsed, list) else []
+    except (ValueError, TypeError):
+        return []
+
+
 def serialize_listing(row: sqlite3.Row) -> dict[str, Any]:
     return {
         "id": row["id"],
@@ -352,20 +374,103 @@ def serialize_listing(row: sqlite3.Row) -> dict[str, Any]:
         "listingStatus": row["listing_status"],
         "tourType": row["tour_type"],
         "tourUrl": row["tour_url"],
+        "images": _safe_json_list(row["images"] if "images" in row.keys() else None),
+        "latitude": row["latitude"] if "latitude" in row.keys() else None,
+        "longitude": row["longitude"] if "longitude" in row.keys() else None,
+        "yearBuilt": row["year_built"] if "year_built" in row.keys() else None,
+        "parking": row["parking"] if "parking" in row.keys() else None,
+        "features": _safe_json_list(row["features"] if "features" in row.keys() else None),
     }
 
 
 def alter_table_add_tour_columns():
-    """Add tour columns to existing databases created before the schema change."""
+    """Add tour and visual columns to existing databases created before the schema change."""
+    import json as _json
+
     connection = get_connection()
     columns = [row[1] for row in connection.execute("PRAGMA table_info(listings)").fetchall()]
-    if "tour_type" not in columns:
-        connection.execute(
-            "ALTER TABLE listings ADD COLUMN tour_type TEXT NOT NULL DEFAULT 'NONE' "
-            "CHECK (tour_type IN ('NONE', 'PHOTO_360', 'MODEL_3D', 'VIDEO_3D'))"
-        )
-    if "tour_url" not in columns:
-        connection.execute("ALTER TABLE listings ADD COLUMN tour_url TEXT")
+
+    def _add_if_missing(col: str, ddl: str) -> None:
+        if col not in columns:
+            connection.execute(ddl)
+
+    _add_if_missing("tour_type",
+        "ALTER TABLE listings ADD COLUMN tour_type TEXT NOT NULL DEFAULT 'NONE' "
+        "CHECK (tour_type IN ('NONE', 'PHOTO_360', 'MODEL_3D', 'VIDEO_3D'))")
+    _add_if_missing("tour_url",
+        "ALTER TABLE listings ADD COLUMN tour_url TEXT")
+    _add_if_missing("images",
+        "ALTER TABLE listings ADD COLUMN images TEXT DEFAULT '[]'")
+    _add_if_missing("latitude",
+        "ALTER TABLE listings ADD COLUMN latitude REAL")
+    _add_if_missing("longitude",
+        "ALTER TABLE listings ADD COLUMN longitude REAL")
+    _add_if_missing("year_built",
+        "ALTER TABLE listings ADD COLUMN year_built INTEGER")
+    _add_if_missing("parking",
+        "ALTER TABLE listings ADD COLUMN parking INTEGER")
+    _add_if_missing("features",
+        "ALTER TABLE listings ADD COLUMN features TEXT DEFAULT '[]'")
+
+    # Seed images + coordinates for existing listings (idempotent — only if images is '[]').
+    seed = {
+        1: {
+            "images": _json.dumps([
+                "https://images.unsplash.com/photo-1600596542815-ffad4c153859?w=800&q=80",
+                "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
+                "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&q=80",
+                "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
+            ]),
+            "latitude": 25.0801, "longitude": 55.1346,
+            "year_built": 2021, "parking": 2,
+            "features": _json.dumps(["Sea View", "Concierge", "Private Terrace", "Gym"]),
+        },
+        2: {
+            "images": _json.dumps([
+                "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80",
+                "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=80",
+                "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80",
+                "https://images.unsplash.com/photo-1600566753190-17f0baa206c3?w=800&q=80",
+                "https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=800&q=80",
+            ]),
+            "latitude": 34.0259, "longitude": -118.7798,
+            "year_built": 2019, "parking": 3,
+            "features": _json.dumps(["Beach Access", "Pool", "Garden", "Smart Home"]),
+        },
+        3: {
+            "images": _json.dumps([
+                "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800&q=80",
+                "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80",
+                "https://images.unsplash.com/photo-1600047509358-a9338b8b7ed1?w=800&q=80",
+            ]),
+            "latitude": 39.1911, "longitude": -106.8175,
+            "year_built": 2017, "parking": 2,
+            "features": _json.dumps(["Ski-in/Ski-out", "Fireplace", "Mountain View", "Sauna"]),
+        },
+        4: {
+            "images": _json.dumps([
+                "https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&q=80",
+                "https://images.unsplash.com/photo-1600566753376-12c8ab7a5a32?w=800&q=80",
+                "https://images.unsplash.com/photo-1600585153490-76fb20a32601?w=800&q=80",
+                "https://images.unsplash.com/photo-1600573472591-ee6b6178f73d?w=800&q=80",
+            ]),
+            "latitude": 43.7326, "longitude": 7.4207,
+            "year_built": 2022, "parking": 1,
+            "features": _json.dumps(["Harbour View", "Concierge", "Balcony", "Wine Cellar"]),
+        },
+    }
+    for lid, data in seed.items():
+        existing = connection.execute(
+            "SELECT images FROM listings WHERE id = ?", (lid,)
+        ).fetchone()
+        if existing and (existing[0] in (None, "", "[]")):
+            connection.execute(
+                """UPDATE listings SET images=?, latitude=?, longitude=?,
+                   year_built=?, parking=?, features=?
+                   WHERE id=?""",
+                (data["images"], data["latitude"], data["longitude"],
+                 data["year_built"], data["parking"], data["features"], lid),
+            )
     connection.commit()
     connection.close()
 

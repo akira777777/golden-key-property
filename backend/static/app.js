@@ -473,13 +473,44 @@ function configureNavigation() {
 
 // ----- Tour dialog -----
 
+const tourProgress = document.querySelector("[data-tour-progress]");
+const tourProgressBar = document.querySelector("[data-tour-progress-bar]");
+const tourProgressLabel = document.querySelector("[data-tour-progress-label]");
+const tourControls = document.querySelector("[data-tour-controls]");
+
+function setTourProgress(value) {
+  if (!tourProgress || !tourProgressBar || !tourProgressLabel) return;
+  const pct = Math.max(0, Math.min(100, Math.round(value)));
+  tourProgressBar.style.setProperty("--tour-progress", `${pct}%`);
+  tourProgressLabel.textContent = `${pct}%`;
+  tourProgress.hidden = pct >= 100;
+}
+
+function hookModelEvents() {
+  if (!tourModel) return;
+  const onProgress = (event) => {
+    const value = event.detail?.totalProgress ?? 0;
+    setTourProgress(value * 100);
+  };
+  const onLoad = () => setTourProgress(100);
+  const onError = () => {
+    setTourProgress(0);
+    if (tourNotice) tourNotice.textContent = I18N.translate("tour.error");
+  };
+  tourModel.addEventListener("progress", onProgress);
+  tourModel.addEventListener("load", onLoad);
+  tourModel.addEventListener("error", onError);
+}
+
 async function openTour(propertyId) {
   if (!tourDialog) return;
   tourTitle.textContent = I18N.translate("tour.title");
   tourNotice.textContent = "";
+  setTourProgress(0);
   tourPlaceholder.hidden = false;
   tourFrame.hidden = true;
   if (tourModel) tourModel.hidden = true;
+  if (tourControls) tourControls.hidden = true;
   tourDialog.showModal();
 
   try {
@@ -498,6 +529,7 @@ async function openTour(propertyId) {
     if (tour.isLocalModel && tourModel) {
       tourModel.src = tour.tourUrl;
       tourModel.hidden = false;
+      if (tourControls) tourControls.hidden = false;
       tourNotice.textContent = I18N.translate("tour.modelHint");
     } else {
       tourFrame.hidden = false;
@@ -512,6 +544,21 @@ async function openTour(propertyId) {
 function closeTour() {
   if (tourDialog?.open) tourDialog.close();
 }
+
+tourDialog?.addEventListener("click", (event) => {
+  const action = event.target instanceof Element ? event.target.closest("[data-tour-action]") : null;
+  if (!action || !tourModel) return;
+  const actionName = action.dataset.tourAction;
+  if (actionName === "reset") {
+    tourModel.cameraOrbit = "45deg 75deg 12m";
+    tourModel.fieldOfView = "45deg";
+    tourModel.jumpCameraToGoal();
+  } else if (actionName === "ar") {
+    tourModel.activateAR?.();
+  }
+});
+
+hookModelEvents();
 
 // ----- Motion / reveal observer -----
 
