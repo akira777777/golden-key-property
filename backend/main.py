@@ -401,20 +401,22 @@ def _safe_json_list(value: Any) -> list:
 
 
 def serialize_listing(row: sqlite3.Row) -> dict[str, Any]:
+    images = _safe_json_list(row["images"] if "images" in row.keys() else None)
+    image_url = row["image_url"] or (images[0] if images else None)
     return {
         "id": row["id"],
         "title": row["title"],
         "location": row["location"],
         "askingPriceUsd": row["asking_price_usd"],
         "description": row["description"],
-        "imageUrl": row["image_url"],
+        "imageUrl": image_url,
         "bedrooms": row["bedrooms"],
         "bathrooms": row["bathrooms"],
         "areaSqM": row["area_sq_m"],
         "listingStatus": row["listing_status"],
         "tourType": row["tour_type"],
         "tourUrl": row["tour_url"],
-        "images": _safe_json_list(row["images"] if "images" in row.keys() else None),
+        "images": images,
         "latitude": row["latitude"] if "latitude" in row.keys() else None,
         "longitude": row["longitude"] if "longitude" in row.keys() else None,
         "yearBuilt": row["year_built"] if "year_built" in row.keys() else None,
@@ -607,6 +609,8 @@ async def list_properties(
     min_price: float | None = Query(default=None, alias="minPrice", ge=0),
     max_price: float | None = Query(default=None, alias="maxPrice", ge=0),
     listing_status: ListingStatus = Query(default=ListingStatus.ACTIVE, alias="listingStatus"),
+    bedrooms_min: int | None = Query(default=None, alias="bedroomsMin", ge=0, le=20),
+    sort_by: str | None = Query(default=None, alias="sortBy", pattern="^(price_asc|price_desc|area_asc|area_desc|newest)$"),
 ) -> dict[str, Any]:
     if min_price is not None and max_price is not None and min_price > max_price:
         raise HTTPException(status_code=422, detail="minPrice cannot exceed maxPrice.")
@@ -622,9 +626,25 @@ async def list_properties(
     if max_price is not None:
         clauses.append("asking_price_usd <= ?")
         values.append(max_price)
+    if bedrooms_min is not None:
+        clauses.append("bedrooms >= ?")
+        values.append(bedrooms_min)
 
     where_clause = " AND ".join(clauses)
     offset = (page - 1) * page_size
+
+    # Sorting
+    order_clause = "created_at DESC, id DESC"
+    if sort_by == "price_asc":
+        order_clause = "asking_price_usd ASC, id DESC"
+    elif sort_by == "price_desc":
+        order_clause = "asking_price_usd DESC, id DESC"
+    elif sort_by == "area_asc":
+        order_clause = "area_sq_m ASC, id DESC"
+    elif sort_by == "area_desc":
+        order_clause = "area_sq_m DESC, id DESC"
+    elif sort_by == "newest":
+        order_clause = "created_at DESC, id DESC"
     with db_session() as connection:
         total_items = connection.execute(
             f"SELECT COUNT(*) FROM listings WHERE {where_clause}", values
@@ -633,7 +653,7 @@ async def list_properties(
             f"""
             SELECT * FROM listings
             WHERE {where_clause}
-            ORDER BY created_at DESC, id DESC
+            ORDER BY {order_clause}
             LIMIT ? OFFSET ?
             """,
             [*values, page_size, offset],

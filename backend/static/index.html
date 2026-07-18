@@ -28,8 +28,8 @@
           property="og:description"
           content="Информационный каталог элитной недвижимости в Дубае с персональным подбором и сопровождением сделки."
         />
-    <meta property="og:url" content="/" />
-    <meta property="og:image" content="/static/hero-coastal-villa.png" />
+    <meta property="og:url" content="https://golden-key-property.vercel.app/" />
+    <meta property="og:image" content="https://golden-key-property.vercel.app/static/hero-coastal-villa.png" />
     <meta property="og:locale" content="ru_RU" />
     <meta property="og:locale:alternate" content="en_US" />
 
@@ -40,7 +40,7 @@
           name="twitter:description"
           content="Информационный каталог элитной недвижимости в Дубае с персональным подбором и сопровождением сделки."
         />
-    <meta name="twitter:image" content="/static/hero-coastal-villa.png" />
+    <meta name="twitter:image" content="https://golden-key-property.vercel.app/static/hero-coastal-villa.png" />
 
     <!-- JSON-LD: Organization schema -->
     <script type="application/ld+json">
@@ -48,7 +48,7 @@
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Golden Key Property",
-        "url": "https://example.com",
+        "url": "https://golden-key-property.vercel.app",
         "logo": "/static/favicon.svg",
         "description": "International property advisory and curated listings.",
         "sameAs": [],
@@ -225,6 +225,28 @@
               <option value="ACTIVE" data-i18n="filter.status.active">Доступные</option>
               <option value="PENDING" data-i18n="filter.status.pending">На согласовании</option>
               <option value="SOLD" data-i18n="filter.status.sold">Проданные</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="bedrooms-filter" data-i18n="filter.bedrooms.label">Спален от</label>
+            <select id="bedrooms-filter" name="bedroomsMin" data-filter-bedrooms>
+              <option value="">Любое</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+              <option value="5">5+</option>
+              <option value="6">6+</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="sort-filter" data-i18n="filter.sort.label">Сортировка</label>
+            <select id="sort-filter" name="sortBy" data-filter-sort>
+              <option value="" data-i18n="filter.sort.default">По умолчанию</option>
+              <option value="price_asc" data-i18n="filter.sort.priceAsc">Цена ↑</option>
+              <option value="price_desc" data-i18n="filter.sort.priceDesc">Цена ↓</option>
+              <option value="area_desc" data-i18n="filter.sort.areaDesc">Площадь ↓</option>
+              <option value="newest" data-i18n="filter.sort.newest">Новые</option>
             </select>
           </div>
           <div class="catalog-filters__actions">
