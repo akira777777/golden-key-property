@@ -3,23 +3,43 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#122720" />
+    <meta name="theme-color" content="#0f2b25" />
     <meta
       name="description"
+      data-i18n-attr="content"
+      data-i18n="meta.description"
       content="Golden Key — международная недвижимость с персональным подбором и прозрачным сопровождением сделки."
     />
-    <title>Golden Key — избранная недвижимость</title>
+    <title data-i18n="meta.title">Golden Key — избранная недвижимость</title>
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Перейти к содержанию</a>
+    <a class="skip-link" href="#main-content" data-i18n="a11y.skip">Перейти к содержанию</a>
 
-    <header class="site-header">
+    <header class="site-header" data-site-header>
       <a class="brand" href="/" aria-label="Golden Key — на главную">
         <span class="brand__mark" aria-hidden="true">GK</span>
         <span class="brand__name">Golden Key</span>
       </a>
+
+      <nav class="site-nav" id="site-navigation" aria-label="Основная навигация" data-site-nav>
+        <a href="#catalog" data-i18n="nav.catalog">Объекты</a>
+        <a href="#approach" data-i18n="nav.approach">Подход</a>
+        <a href="#partners" data-i18n="nav.partners">Партнёрам</a>
+      </nav>
+
+      <div
+        class="lang-switcher"
+        role="group"
+        aria-label="Language"
+        data-lang-switcher
+      >
+        <button type="button" class="lang-switcher__btn" data-lang="ru" aria-pressed="true">RU</button>
+        <button type="button" class="lang-switcher__btn" data-lang="en" aria-pressed="false">EN</button>
+        <button type="button" class="lang-switcher__btn" data-lang="de" aria-pressed="false">DE</button>
+        <button type="button" class="lang-switcher__btn" data-lang="es" aria-pressed="false">ES</button>
+      </div>
 
       <button
         class="menu-toggle"
@@ -28,92 +48,104 @@
         aria-controls="site-navigation"
         data-menu-toggle
       >
-        <span class="sr-only">Открыть навигацию</span>
-        <span aria-hidden="true">Меню</span>
+        <span class="sr-only" data-i18n="nav.menu.open">Открыть навигацию</span>
+        <span aria-hidden="true" data-i18n="nav.menu.label">Меню</span>
       </button>
 
-      <nav class="site-nav" id="site-navigation" aria-label="Основная навигация" data-site-nav>
-        <a href="#catalog">Объекты</a>
-        <a href="#approach">Подход</a>
-        <a href="#partners">Партнёрам</a>
-      </nav>
-
       <button class="header-cta" type="button" data-open-inquiry>
-        Запросить подбор
+        <span data-i18n="header.cta">Запросить подбор</span>
       </button>
     </header>
 
     <main id="main-content">
-      <section class="hero" aria-labelledby="hero-title">
+      <section class="hero" aria-labelledby="hero-title" data-hero>
         <div class="hero__media" aria-hidden="true">
           <img src="/static/hero-coastal-villa.png" alt="" />
         </div>
         <div class="hero__veil" aria-hidden="true"></div>
         <div class="hero__content container">
-          <p class="eyebrow eyebrow--light">International property advisory</p>
-          <h1 id="hero-title">Недвижимость, которая ощущается как верное решение.</h1>
-          <p class="hero__lead">
+          <p class="eyebrow eyebrow--light" data-i18n="hero.eyebrow">International property advisory</p>
+          <h1 id="hero-title">
+            <span data-i18n="hero.title.a">Недвижимость, которая</span>
+            <em data-i18n="hero.title.b">ощущается</em>
+            <span data-i18n="hero.title.c">как верное решение.</span>
+          </h1>
+          <p class="hero__lead" data-i18n="hero.lead">
             Тщательно отобранные объекты в знаковых локациях и персональное сопровождение,
             в котором понятен каждый следующий шаг.
           </p>
           <div class="hero__actions">
             <button class="button button--light" type="button" data-open-inquiry>
-              Подобрать объект
+              <span data-i18n="hero.cta.primary">Подобрать объект</span>
               <span aria-hidden="true">↗</span>
             </button>
-            <a class="text-link text-link--light" href="#catalog">Смотреть предложения</a>
+            <a class="text-link text-link--light" href="#catalog" data-i18n="hero.cta.secondary">Смотреть предложения</a>
           </div>
         </div>
         <div class="hero__footer container" aria-label="Ключевые преимущества">
-          <p>Частный подбор</p>
-          <p>Проверяемая информация</p>
-          <p>Сопровождение без лишнего шума</p>
+          <p data-i18n="hero.pillars.1">Частный подбор</p>
+          <p data-i18n="hero.pillars.2">Проверяемая информация</p>
+          <p data-i18n="hero.pillars.3">Сопровождение без лишнего шума</p>
         </div>
       </section>
 
       <section class="introduction container" aria-labelledby="introduction-title">
         <div class="section-label">
           <span>01</span>
-          <p>Не каталог ради каталога</p>
+          <p data-i18n="intro.label">Не каталог ради каталога</p>
         </div>
         <div class="introduction__copy">
-          <p class="kicker">Golden Key Property</p>
-          <h2 id="introduction-title">Сначала понимаем ваш ритм жизни. Затем открываем нужные двери.</h2>
-          <p>
+          <p class="kicker" data-i18n="intro.kicker">Golden Key Property</p>
+          <h2 id="introduction-title">
+            <span data-i18n="intro.title.a">Сначала понимаем ваш ритм жизни.</span>
+            <em data-i18n="intro.title.b">Затем</em>
+            <span data-i18n="intro.title.c">открываем нужные двери.</span>
+          </h2>
+          <p data-i18n="intro.body">
             Мы работаем с ограниченным числом запросов одновременно: так консультант остаётся
             в контексте, а рекомендации не превращаются в поток ссылок.
           </p>
-          <a class="text-link" href="#approach">Как устроен подбор <span aria-hidden="true">→</span></a>
+          <a class="text-link" href="#approach">
+            <span data-i18n="intro.cta">Как устроен подбор</span>
+            <span aria-hidden="true">→</span>
+          </a>
         </div>
       </section>
 
       <section class="catalog-section" id="catalog" aria-labelledby="catalog-title">
         <div class="container catalog-section__heading">
           <div>
-            <p class="eyebrow">Selected listings</p>
-            <h2 id="catalog-title">Выберите пространство, к которому хочется вернуться.</h2>
+            <p class="eyebrow" data-i18n="catalog.eyebrow">Selected listings</p>
+            <h2 id="catalog-title">
+              <span data-i18n="catalog.title.a">Выберите пространство,</span>
+              <em data-i18n="catalog.title.b">к которому</em>
+              <span data-i18n="catalog.title.c">хочется вернуться.</span>
+            </h2>
           </div>
           <div class="catalog-section__meta">
-            <p data-listing-count aria-live="polite">Загружаем предложения…</p>
+            <p data-listing-count aria-live="polite" data-i18n="catalog.loading">Загружаем предложения…</p>
             <button class="text-link text-link--button" type="button" data-open-inquiry>
-              Запросить персональный подбор <span aria-hidden="true">→</span>
+              <span data-i18n="catalog.cta">Запросить персональный подбор</span>
+              <span aria-hidden="true">→</span>
             </button>
           </div>
         </div>
         <form class="container catalog-filters" data-catalog-filters aria-label="Фильтры каталога">
           <div class="filter-field filter-field--wide">
-            <label for="location-filter">Локация</label>
+            <label for="location-filter" data-i18n="filter.location.label">Локация</label>
             <input
               id="location-filter"
               name="location"
               type="search"
               autocomplete="off"
+              data-i18n-attr="placeholder"
+              data-i18n="filter.location.placeholder"
               placeholder="Город, район или страна"
               data-filter-location
             />
           </div>
           <div class="filter-field">
-            <label for="min-price-filter">Цена от, USD</label>
+            <label for="min-price-filter" data-i18n="filter.price.minLabel">Цена от, USD</label>
             <input
               id="min-price-filter"
               name="minPrice"
@@ -126,7 +158,7 @@
             />
           </div>
           <div class="filter-field">
-            <label for="max-price-filter">Цена до, USD</label>
+            <label for="max-price-filter" data-i18n="filter.price.maxLabel">Цена до, USD</label>
             <input
               id="max-price-filter"
               name="maxPrice"
@@ -139,23 +171,23 @@
             />
           </div>
           <div class="filter-field">
-            <label for="status-filter">Статус</label>
+            <label for="status-filter" data-i18n="filter.status.label">Статус</label>
             <select id="status-filter" name="listingStatus" data-filter-status>
-              <option value="ACTIVE">Доступные</option>
-              <option value="PENDING">На согласовании</option>
-              <option value="SOLD">Проданные</option>
+              <option value="ACTIVE" data-i18n="filter.status.active">Доступные</option>
+              <option value="PENDING" data-i18n="filter.status.pending">На согласовании</option>
+              <option value="SOLD" data-i18n="filter.status.sold">Проданные</option>
             </select>
           </div>
           <div class="catalog-filters__actions">
-            <button class="button button--dark" type="submit">Показать</button>
+            <button class="button button--dark" type="submit" data-i18n="filter.apply">Показать</button>
             <button class="text-link text-link--button" type="button" data-reset-filters>
-              Сбросить
+              <span data-i18n="filter.reset">Сбросить</span>
             </button>
           </div>
         </form>
-        <div class="container property-grid" data-catalog aria-live="polite"></div>
+        <div class="container property-grid stagger" data-catalog aria-live="polite"></div>
         <noscript>
-          <p class="container catalog-notice">
+          <p class="container catalog-notice" data-i18n="catalog.noscript">
             Для отображения каталога включите JavaScript или используйте API напрямую.
           </p>
         </noscript>
@@ -164,27 +196,31 @@
       <section class="approach container" id="approach" aria-labelledby="approach-title">
         <div class="section-label">
           <span>02</span>
-          <p>Путь к объекту</p>
+          <p data-i18n="approach.label">Путь к объекту</p>
         </div>
         <div class="approach__main">
-          <p class="kicker">From brief to keys</p>
-          <h2 id="approach-title">Собранный процесс, который оставляет место для личного.</h2>
+          <p class="kicker" data-i18n="approach.kicker">From brief to keys</p>
+          <h2 id="approach-title">
+            <span data-i18n="approach.title.a">Собранный процесс,</span>
+            <em data-i18n="approach.title.b">который</em>
+            <span data-i18n="approach.title.c">оставляет место для личного.</span>
+          </h2>
         </div>
-        <ol class="approach__steps">
+        <ol class="approach__steps stagger">
           <li>
             <span>01</span>
-            <h3>Понимаем задачу</h3>
-            <p>Обсуждаем локацию, сценарии жизни, сроки и то, что для вас не подлежит компромиссу.</p>
+            <h3 data-i18n="approach.step1.title">Понимаем задачу</h3>
+            <p data-i18n="approach.step1.body">Обсуждаем локацию, сценарии жизни, сроки и то, что для вас не подлежит компромиссу.</p>
           </li>
           <li>
             <span>02</span>
-            <h3>Сужаем выбор</h3>
-            <p>Показываем релевантные варианты и помогаем сравнить их на языке реальных решений.</p>
+            <h3 data-i18n="approach.step2.title">Сужаем выбор</h3>
+            <p data-i18n="approach.step2.body">Показываем релевантные варианты и помогаем сравнить их на языке реальных решений.</p>
           </li>
           <li>
             <span>03</span>
-            <h3>Двигаемся уверенно</h3>
-            <p>Координируем контакт с агентом и напоминаем, какие сведения нужно подтвердить до сделки.</p>
+            <h3 data-i18n="approach.step3.title">Двигаемся уверенно</h3>
+            <p data-i18n="approach.step3.body">Координируем контакт с агентом и напоминаем, какие сведения нужно подтвердить до сделки.</p>
           </li>
         </ol>
       </section>
@@ -192,16 +228,23 @@
       <section class="partners" id="partners" aria-labelledby="partners-title">
         <div class="container partners__grid">
           <div class="partners__lead">
-            <p class="eyebrow eyebrow--light">For partners</p>
-            <h2 id="partners-title">Для тех, кто ценит сдержанную работу с сильными объектами.</h2>
+            <p class="eyebrow eyebrow--light" data-i18n="partners.eyebrow">For partners</p>
+            <h2 id="partners-title">
+              <span data-i18n="partners.title.a">Для тех, кто ценит сдержанную работу</span>
+              <em data-i18n="partners.title.b">с сильными</em>
+              <span data-i18n="partners.title.c">объектами.</span>
+            </h2>
           </div>
           <div class="partners__copy">
-            <p>
+            <p data-i18n="partners.body">
               Если вы представляете семейный офис, девелоперскую команду или профессионального
               партнёра, начните с вводной беседы о критериях отбора и формате взаимодействия.
             </p>
-            <a class="button button--outline" href="#catalog">Изучить подборку <span aria-hidden="true">↗</span></a>
-            <p class="partners__notice">
+            <a class="button button--outline" href="#catalog">
+              <span data-i18n="partners.cta">Изучить подборку</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+            <p class="partners__notice" data-i18n="partners.notice">
               Сайт не предлагает финансовые продукты, не принимает переводы и не гарантирует доходность.
               Любые решения требуют независимой проверки и профессиональной консультации.
             </p>
@@ -211,11 +254,16 @@
 
       <section class="contact-cta container" aria-labelledby="contact-title">
         <div>
-          <p class="eyebrow">Start with a conversation</p>
-          <h2 id="contact-title">Расскажите, какой дом вы ищете.</h2>
+          <p class="eyebrow" data-i18n="contact.eyebrow">Start with a conversation</p>
+          <h2 id="contact-title">
+            <span data-i18n="contact.title.a">Расскажите, какой</span>
+            <em data-i18n="contact.title.b">дом</em>
+            <span data-i18n="contact.title.c">вы ищете.</span>
+          </h2>
         </div>
         <button class="button button--dark" type="button" data-open-inquiry>
-          Оставить запрос <span aria-hidden="true">↗</span>
+          <span data-i18n="contact.cta">Оставить запрос</span>
+          <span aria-hidden="true">↗</span>
         </button>
       </section>
     </main>
@@ -227,9 +275,9 @@
             <span class="brand__mark" aria-hidden="true">GK</span>
             <span class="brand__name">Golden Key</span>
           </a>
-          <p>International property advisory</p>
+          <p data-i18n="footer.tagline">International property advisory</p>
         </div>
-        <p class="site-footer__legal">
+        <p class="site-footer__legal" data-i18n="footer.legal">
           Информация по объектам носит ознакомительный характер и требует проверки у агента и владельца.
         </p>
         <p>© <span data-current-year></span> Golden Key Property</p>
@@ -239,9 +287,9 @@
     <dialog class="inquiry-dialog" aria-labelledby="inquiry-title" data-inquiry-dialog>
       <div class="inquiry-dialog__layout">
         <div class="inquiry-dialog__intro">
-          <p class="eyebrow eyebrow--light">Private enquiry</p>
-          <h2 id="inquiry-title">Начнём с нескольких деталей.</h2>
-          <p>Консультант свяжется только по вашему запросу и только по выбранному объекту.</p>
+          <p class="eyebrow eyebrow--light" data-i18n="inquiry.eyebrow">Private enquiry</p>
+          <h2 id="inquiry-title" data-i18n="inquiry.title">Начнём с нескольких деталей.</h2>
+          <p data-i18n="inquiry.intro">Консультант свяжется только по вашему запросу и только по выбранному объекту.</p>
         </div>
         <div class="inquiry-dialog__form-wrap">
           <button class="dialog-close" type="button" aria-label="Закрыть форму" data-close-inquiry>
@@ -249,36 +297,44 @@
           </button>
           <form id="inquiry-form" novalidate>
             <div class="form-field">
-              <label for="propertyId">Объект</label>
+              <label for="propertyId" data-i18n="inquiry.field.property">Объект</label>
               <select id="propertyId" name="propertyId" required data-property-select>
-                <option value="">Загружаем объекты…</option>
+                <option value="" data-i18n="inquiry.field.propertyLoading">Загружаем объекты…</option>
               </select>
             </div>
             <div class="form-field form-field--split">
               <div>
-                <label for="fullName">Имя и фамилия</label>
+                <label for="fullName" data-i18n="inquiry.field.name">Имя и фамилия</label>
                 <input id="fullName" name="fullName" autocomplete="name" minlength="2" maxlength="120" required />
               </div>
               <div>
-                <label for="email">Email</label>
+                <label for="email" data-i18n="inquiry.field.email">Email</label>
                 <input id="email" name="email" type="email" autocomplete="email" required />
               </div>
             </div>
             <div class="form-field">
-              <label for="phone">Телефон <span>(необязательно)</span></label>
+              <label for="phone">
+                <span data-i18n="inquiry.field.phone">Телефон</span>
+                <span data-i18n="inquiry.field.optional"> (необязательно)</span>
+              </label>
               <input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="32" />
             </div>
             <div class="form-field">
-              <label for="message">О чём вы хотите поговорить?</label>
+              <label for="message" data-i18n="inquiry.field.message">О чём вы хотите поговорить?</label>
               <textarea id="message" name="message" rows="4" minlength="10" maxlength="2000" required></textarea>
             </div>
             <label class="consent-field" for="consentToContact">
               <input id="consentToContact" name="consentToContact" type="checkbox" required />
-              <span>Я согласен(-на), чтобы со мной связались по этому запросу.</span>
+              <span data-i18n="inquiry.field.consent">Я согласен(-на), чтобы со мной связались по этому запросу.</span>
             </label>
             <p class="form-status" data-form-status aria-live="polite"></p>
-            <button class="button button--dark button--full" type="submit">Отправить запрос <span aria-hidden="true">↗</span></button>
-            <p class="form-note">Не отправляйте через форму документы, платёжные данные или конфиденциальную информацию.</p>
+            <button class="button button--dark button--full" type="submit">
+              <span data-i18n="inquiry.submit">Отправить запрос</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+            <p class="form-note" data-i18n="inquiry.note">
+              Не отправляйте через форму документы, платёжные данные или конфиденциальную информацию.
+            </p>
           </form>
         </div>
       </div>
@@ -288,8 +344,8 @@
       <div class="tour-dialog__layout">
         <div class="tour-dialog__header">
           <div>
-            <p class="eyebrow eyebrow--light">Virtual tour</p>
-            <h2 id="tour-title" data-tour-title>3D-прогулка</h2>
+            <p class="eyebrow eyebrow--light" data-i18n="tour.eyebrow">Virtual tour</p>
+            <h2 id="tour-title" data-tour-title data-i18n="tour.title">3D-прогулка</h2>
           </div>
           <button class="dialog-close" type="button" aria-label="Закрыть тур" data-close-tour>
             <span aria-hidden="true">×</span>
@@ -297,7 +353,7 @@
         </div>
         <div class="tour-viewport" data-tour-viewport>
           <div class="tour-placeholder" data-tour-placeholder>
-            <p>Загружаем 3D-прогулку…</p>
+            <p data-i18n="tour.loading">Загружаем 3D-прогулку…</p>
           </div>
           <model-viewer
             data-tour-model
@@ -317,6 +373,7 @@
     </dialog>
 
     <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+    <script src="/static/i18n.js" defer></script>
     <script src="/static/app.js" defer></script>
   </body>
 </html>

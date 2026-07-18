@@ -1,3 +1,34 @@
+/* ============================================================
+   Golden Key Property Listings — frontend
+   Locale-aware: pulls strings/formatting from GK_I18N (i18n.js).
+   Re-renders catalog and dropdowns on locale change.
+   ============================================================ */
+
+const I18N = window.GK_I18N || {
+  setLocale: () => {},
+  getLocale: () => "ru",
+  translate: (key) => key,
+  format: (template, vars) => (template || "").replace(/\{(\w+)\}/g, (_, k) => vars?.[k] ?? ""),
+  formatPrice: (value) => `$${value}`,
+  formatNumber: (value) => String(value),
+  formatArea: (sqm) => `${sqm} m²`,
+  pluralize: (_count, forms) => forms[1] || forms[0],
+};
+
+const t = (key, vars) => I18N.format(I18N.translate(key), vars);
+const fmtPrice = (value) => I18N.formatPrice(value);
+const fmtArea = (sqm) => I18N.formatArea(sqm);
+const pluralize = (count, key) => {
+  const forms = [
+    I18N.translate(`${key}.0`),
+    I18N.translate(`${key}.1`),
+    I18N.translate(`${key}.2`),
+  ];
+  return I18N.pluralize(count, forms);
+};
+
+// ----- Element refs -----
+
 const catalog = document.querySelector("[data-catalog]");
 const listingCount = document.querySelector("[data-listing-count]");
 const inquiryDialog = document.querySelector("[data-inquiry-dialog]");
@@ -21,22 +52,30 @@ const tourModel = document.querySelector("[data-tour-model]");
 const tourPlaceholder = document.querySelector("[data-tour-placeholder]");
 const tourNotice = document.querySelector("[data-tour-notice]");
 const closeTourButton = document.querySelector("[data-close-tour]");
+const siteHeader = document.querySelector("[data-site-header]");
+const heroSection = document.querySelector("[data-hero]");
 
-const statusLabels = {
-  ACTIVE: "Доступен",
-  PENDING: "На согласовании",
-  SOLD: "Продан",
-};
-
-const tourTypeLabels = {
-  PHOTO_360: "Панорамный тур 360°",
-  MODEL_3D: "3D-модель объекта",
-  VIDEO_3D: "3D-видео прогулка",
-};
+// ----- State -----
 
 let availableProperties = [];
 let lastDialogTrigger = null;
 let catalogRequestController = null;
+
+// ----- Status / tour type labels (locale-aware) -----
+
+function statusLabel(status) {
+  const key = `card.status.${String(status).toLowerCase()}`;
+  return I18N.translate(key) || I18N.translate("card.status.fallback");
+}
+
+function tourTypeLabel(tourType) {
+  if (tourType === "PHOTO_360") return I18N.translate("card.cta.tour360");
+  if (tourType === "MODEL_3D") return I18N.translate("card.cta.tour3d");
+  if (tourType === "VIDEO_3D") return I18N.translate("card.cta.tourVideo");
+  return I18N.translate("card.cta.tourFallback");
+}
+
+// ----- Catalog loading / similar listings -----
 
 async function loadSimilarProperties(propertyId) {
   if (!catalog) return;
@@ -45,7 +84,7 @@ async function loadSimilarProperties(propertyId) {
     const response = await fetch(`/api/properties/${propertyId}/similar`, {
       headers: { Accept: "application/json" },
     });
-    if (!response.ok) throw new Error("Не удалось найти похожие объекты.");
+    if (!response.ok) throw new Error("similar_unavailable");
     const payload = await response.json();
     const properties = Array.isArray(payload.data) ? payload.data : [];
     availableProperties = properties;
@@ -55,27 +94,21 @@ async function loadSimilarProperties(propertyId) {
     if (properties.length) {
       catalog.replaceChildren(...properties.map(createPropertyCard));
       if (listingCount) {
-        const word = pluralizeRu(properties.length, ["похожий объект", "похожих объекта", "похожих объектов"]);
-        listingCount.textContent = `${properties.length} ${word}.`;
+        const word = pluralize(properties.length, "word.similar");
+        listingCount.textContent = t("summary.similar", { count: properties.length, word });
       }
     } else {
-      showCatalogMessage("Похожих объектов пока нет. Попробуйте оставить персональный запрос.");
-      if (listingCount) listingCount.textContent = "Похожих объектов не найдено.";
+      showCatalogMessage(I18N.translate("catalog.similar.empty"));
+      if (listingCount) listingCount.textContent = I18N.translate("catalog.similar.unavailableShort");
     }
     catalog.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch {
-    showCatalogMessage("Не удалось загрузить похожие объекты. Попробуйте позже.");
-    if (listingCount) listingCount.textContent = "Похожие объекты временно недоступны.";
+    showCatalogMessage(I18N.translate("catalog.similar.unavailable"));
+    if (listingCount) listingCount.textContent = I18N.translate("catalog.similar.unavailableShort");
   }
 }
 
-function formatPrice(value) {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+// ----- DOM helpers -----
 
 function createTextElement(tagName, className, text) {
   const element = document.createElement(tagName);
@@ -84,29 +117,112 @@ function createTextElement(tagName, className, text) {
   return element;
 }
 
-function pluralizeRu(count, forms) {
-  const absolute = Math.abs(count) % 100;
-  const lastDigit = absolute % 10;
-  if (absolute > 10 && absolute < 20) return forms[2];
-  if (lastDigit > 1 && lastDigit < 5) return forms[1];
-  if (lastDigit === 1) return forms[0];
-  return forms[2];
-}
+function createPropertyCard(property) {
+  const card = document.createElement("article");
+  card.className = "property-card";
+  // Cycle through 3 visual variants (emerald, gold, navy) for visual variety
+  card.dataset.cardVariant = String(((property.id - 1) % 3) + 1);
 
-function formatListingSummary(shown, total) {
-  if (total === 0) return "По выбранным фильтрам нет объектов.";
-  const listingWord = pluralizeRu(total, ["объект", "объекта", "объектов"]);
-  const availability = total === 1 ? "доступен" : "доступны";
-  if (shown < total) return `Показано: ${shown} из ${total}.`;
-  return `${total} ${listingWord} ${availability} для персонального подбора.`;
-}
+  const visual = document.createElement("div");
+  visual.className = "property-card__visual";
+  visual.setAttribute("aria-hidden", "true");
+  visual.dataset.propertyId = String(property.id);
+  if (property.imageUrl) {
+    const image = document.createElement("img");
+    image.src = property.imageUrl;
+    image.alt = "";
+    image.loading = "lazy";
+    visual.classList.add("property-card__visual--image");
+    visual.append(image);
+  }
+  const statusNode = createTextElement("p", `property-card__status property-card__status--${String(property.listingStatus).toLowerCase()}`, statusLabel(property.listingStatus));
+  visual.append(statusNode);
+  if (property.askingPriceUsd) {
+    visual.append(
+      createTextElement("span", "property-card__price-tag", fmtPrice(property.askingPriceUsd)),
+    );
+  }
 
-function formatPropertyDetails(property) {
-  return [
-    `Спальни: ${property.bedrooms}`,
-    `Санузлы: ${property.bathrooms}`,
-    `${property.areaSqM} м²`,
-  ].join(" · ");
+  const content = document.createElement("div");
+  content.className = "property-card__content";
+
+  content.append(createTextElement("p", "property-card__location", property.location));
+  content.append(createTextElement("h3", "", property.title));
+
+  content.append(createTextElement("p", "property-card__price", fmtPrice(property.askingPriceUsd)));
+
+  // price per sqm subtitle, only when both values are valid
+  if (property.askingPriceUsd && property.areaSqM) {
+    const perSqm = Math.round(property.askingPriceUsd / property.areaSqM);
+    content.append(
+      createTextElement("p", "property-card__price-sub", t("card.pricePerSqM", { price: fmtPrice(perSqm) })),
+    );
+  }
+
+  // detail pills
+  const details = document.createElement("div");
+  details.className = "property-card__details";
+  details.append(
+    createTextElement("span", "", `${property.bedrooms} · ${I18N.translate("card.bedrooms")}`),
+    createTextElement("span", "", `${property.bathrooms} · ${I18N.translate("card.bathrooms")}`),
+    createTextElement("span", "", fmtArea(property.areaSqM)),
+  );
+  content.append(details);
+
+  content.append(createTextElement("p", "property-card__description", property.description));
+
+  const actionsRow = document.createElement("div");
+  actionsRow.className = "property-card__actions";
+
+  const action = document.createElement("button");
+  action.className = "property-card__action";
+  action.type = "button";
+  if (property.listingStatus === "SOLD") {
+    action.dataset.findSimilar = "";
+    action.dataset.propertyId = String(property.id);
+    action.setAttribute(
+      "aria-label",
+      t("card.aria.similar", { title: property.title }),
+    );
+    action.textContent = I18N.translate("card.cta.similar");
+  } else {
+    action.dataset.openInquiry = "";
+    action.dataset.propertyId = String(property.id);
+    action.setAttribute(
+      "aria-label",
+      t("card.aria.inquire", { title: property.title }),
+    );
+    action.textContent = I18N.translate("card.cta.inquire");
+  }
+  const arrow = document.createElement("span");
+  arrow.setAttribute("aria-hidden", "true");
+  arrow.textContent = "↗";
+  action.append(arrow);
+  actionsRow.append(action);
+
+  if (property.tourType && property.tourType !== "NONE" && property.tourUrl) {
+    const tourAction = document.createElement("button");
+    tourAction.className = "property-card__action property-card__action--tour";
+    tourAction.type = "button";
+    tourAction.dataset.openTour = "";
+    tourAction.dataset.propertyId = String(property.id);
+    const tourLabel = tourTypeLabel(property.tourType);
+    tourAction.setAttribute(
+      "aria-label",
+      t("card.aria.tour", { tourType: tourLabel, title: property.title }),
+    );
+    tourAction.textContent = tourLabel;
+    const tourArrow = document.createElement("span");
+    tourArrow.setAttribute("aria-hidden", "true");
+    tourArrow.textContent = "↗";
+    tourAction.append(tourArrow);
+    actionsRow.append(tourAction);
+  }
+
+  content.append(actionsRow);
+
+  card.append(visual, content);
+  return card;
 }
 
 function createLoadingCard() {
@@ -130,72 +246,6 @@ function createLoadingCard() {
   return card;
 }
 
-function createPropertyCard(property) {
-  const card = document.createElement("article");
-  card.className = "property-card";
-
-  const visual = document.createElement("div");
-  visual.className = "property-card__visual";
-  visual.setAttribute("aria-hidden", "true");
-  visual.dataset.propertyId = String(property.id);
-  if (property.imageUrl) {
-    const image = document.createElement("img");
-    image.src = property.imageUrl;
-    image.alt = "";
-    visual.classList.add("property-card__visual--image");
-    visual.append(image);
-  }
-  visual.append(createTextElement("p", "property-card__status", statusLabels[property.listingStatus] || "По запросу"));
-
-  const content = document.createElement("div");
-  content.className = "property-card__content";
-  content.append(
-    createTextElement("p", "property-card__location", property.location),
-    createTextElement("h3", "", property.title),
-    createTextElement("p", "property-card__price", formatPrice(property.askingPriceUsd)),
-    createTextElement("p", "property-card__details", formatPropertyDetails(property)),
-    createTextElement("p", "property-card__description", property.description),
-  );
-
-  const action = document.createElement("button");
-  action.className = "property-card__action";
-  action.type = "button";
-  if (property.listingStatus === "SOLD") {
-    action.dataset.findSimilar = "";
-    action.dataset.propertyId = String(property.id);
-    action.setAttribute("aria-label", `Найти похожие объекты к «${property.title}»`);
-    action.textContent = "Найти похожее";
-  } else {
-    action.dataset.openInquiry = "";
-    action.dataset.propertyId = String(property.id);
-    action.setAttribute("aria-label", `Запросить информацию об объекте «${property.title}»`);
-    action.textContent = "Узнать больше";
-  }
-  const arrow = document.createElement("span");
-  arrow.setAttribute("aria-hidden", "true");
-  arrow.textContent = "↗";
-  action.append(arrow);
-  content.append(action);
-
-  if (property.tourType && property.tourType !== "NONE" && property.tourUrl) {
-    const tourAction = document.createElement("button");
-    tourAction.className = "property-card__action property-card__action--tour";
-    tourAction.type = "button";
-    tourAction.dataset.openTour = "";
-    tourAction.dataset.propertyId = String(property.id);
-    tourAction.setAttribute("aria-label", `${tourTypeLabels[property.tourType] || "3D-тур"} для «${property.title}»`);
-    tourAction.textContent = tourTypeLabels[property.tourType] || "3D-тур";
-    const tourArrow = document.createElement("span");
-    tourArrow.setAttribute("aria-hidden", "true");
-    tourArrow.textContent = "↗";
-    tourAction.append(tourArrow);
-    content.append(tourAction);
-  }
-
-  card.append(visual, content);
-  return card;
-}
-
 function showCatalogMessage(message) {
   if (!catalog) return;
   const notice = createTextElement("p", "catalog-notice", message);
@@ -207,17 +257,19 @@ function showCatalogLoading() {
   if (!catalog) return;
   catalog.setAttribute("aria-busy", "true");
   catalog.replaceChildren(createLoadingCard(), createLoadingCard(), createLoadingCard());
-  if (listingCount) listingCount.textContent = "Загружаем предложения…";
+  if (listingCount) listingCount.textContent = I18N.translate("catalog.loading");
 }
 
 function populatePropertySelect(properties) {
   if (!propertySelect) return;
   const currentValue = propertySelect.value;
-  const placeholder = new Option("Выберите объект", "");
+  const placeholder = new Option(I18N.translate("inquiry.field.property"), "");
   placeholder.disabled = true;
 
   if (!properties.length) {
-    propertySelect.replaceChildren(new Option("Нет объектов по выбранным фильтрам", ""));
+    propertySelect.replaceChildren(
+      new Option(I18N.translate("inquiry.field.propertyLoading"), ""),
+    );
     propertySelect.disabled = true;
     return;
   }
@@ -232,6 +284,21 @@ function populatePropertySelect(properties) {
     ? currentValue
     : "";
 }
+
+// ----- Catalog summary (locale-aware) -----
+
+function formatListingSummary(shown, total) {
+  if (total === 0) return I18N.translate("summary.empty");
+  const listingWord = pluralize(total, "word.object");
+  const availability =
+    total === 1
+      ? I18N.translate("word.availability.singular")
+      : I18N.translate("word.availability.plural");
+  if (shown < total) return t("summary.shown", { shown, total });
+  return t("summary.total", { total, word: listingWord, availability });
+}
+
+// ----- Filter query -----
 
 function readPriceFilter(input) {
   const value = input?.value.trim();
@@ -248,7 +315,7 @@ function buildPropertyQuery() {
   const listingStatus = filterStatus?.value || "ACTIVE";
 
   if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
-    return { error: "Минимальная цена не может быть выше максимальной." };
+    return { error: I18N.translate("filter.rangeError") };
   }
 
   params.set("listingStatus", listingStatus);
@@ -257,6 +324,8 @@ function buildPropertyQuery() {
   if (maxPrice !== null) params.set("maxPrice", String(maxPrice));
   return { params };
 }
+
+// ----- Inquiry dialog -----
 
 function openInquiry(trigger) {
   if (!inquiryDialog) return;
@@ -287,7 +356,7 @@ async function loadProperties() {
     availableProperties = [];
     showCatalogMessage(query.error);
     populatePropertySelect([]);
-    if (listingCount) listingCount.textContent = "Проверьте диапазон цены.";
+    if (listingCount) listingCount.textContent = I18N.translate("catalog.priceError");
     return;
   }
 
@@ -301,7 +370,7 @@ async function loadProperties() {
       headers: { Accept: "application/json" },
       signal: requestController.signal,
     });
-    if (!response.ok) throw new Error("Каталог временно недоступен.");
+    if (!response.ok) throw new Error("catalog_unavailable");
 
     const payload = await response.json();
     const properties = Array.isArray(payload.data) ? payload.data : [];
@@ -310,7 +379,7 @@ async function loadProperties() {
     if (properties.length) {
       catalog.replaceChildren(...properties.map(createPropertyCard));
     } else {
-      showCatalogMessage("По выбранным фильтрам ничего не найдено. Измените параметры или оставьте персональный запрос.");
+      showCatalogMessage(I18N.translate("catalog.empty"));
     }
     populatePropertySelect(properties);
 
@@ -318,12 +387,12 @@ async function loadProperties() {
       const totalItems = Number(payload.pagination?.totalItems) || properties.length;
       listingCount.textContent = formatListingSummary(properties.length, totalItems);
     }
-  } catch (_error) {
-    if (_error instanceof DOMException && _error.name === "AbortError") return;
-    showCatalogMessage("Не удалось загрузить каталог. Обновите страницу или попробуйте позже.");
-    if (listingCount) listingCount.textContent = "Каталог временно недоступен.";
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") return;
+    showCatalogMessage(I18N.translate("catalog.unavailable"));
+    if (listingCount) listingCount.textContent = I18N.translate("catalog.unavailableShort");
     if (propertySelect) {
-      propertySelect.replaceChildren(new Option("Каталог временно недоступен", ""));
+      propertySelect.replaceChildren(new Option(I18N.translate("catalog.unavailableShort"), ""));
       propertySelect.disabled = true;
     }
   } finally {
@@ -352,7 +421,7 @@ async function submitInquiry(event) {
   };
 
   submitButton?.setAttribute("disabled", "");
-  setFormStatus("Отправляем запрос…", "pending");
+  setFormStatus(I18N.translate("inquiry.sending"), "pending");
 
   try {
     const response = await fetch("/api/inquiries", {
@@ -361,20 +430,22 @@ async function submitInquiry(event) {
       body: JSON.stringify(body),
     });
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.error?.message || "Не удалось отправить запрос.");
+    if (!response.ok) throw new Error(payload.error?.message || I18N.translate("inquiry.error"));
 
-    setFormStatus(payload.message || "Запрос отправлен.", "success");
+    setFormStatus(payload.message || I18N.translate("inquiry.success"), "success");
     inquiryForm.reset();
     populatePropertySelect(availableProperties);
   } catch (error) {
     setFormStatus(
-      error instanceof Error ? error.message : "Не удалось отправить запрос. Попробуйте ещё раз.",
+      error instanceof Error ? error.message : I18N.translate("inquiry.error"),
       "error",
     );
   } finally {
     submitButton?.removeAttribute("disabled");
   }
 }
+
+// ----- Navigation -----
 
 function configureNavigation() {
   if (!menuToggle || !siteNavigation) return;
@@ -383,7 +454,11 @@ function configureNavigation() {
     menuToggle.setAttribute("aria-expanded", String(isOpen));
     siteNavigation.classList.toggle("is-open", isOpen);
     const hiddenLabel = menuToggle.querySelector(".sr-only");
-    if (hiddenLabel) hiddenLabel.textContent = isOpen ? "Закрыть навигацию" : "Открыть навигацию";
+    if (hiddenLabel) {
+      hiddenLabel.textContent = isOpen
+        ? I18N.translate("nav.menu.close")
+        : I18N.translate("nav.menu.open");
+    }
   };
 
   menuToggle.addEventListener("click", () => {
@@ -395,6 +470,98 @@ function configureNavigation() {
     setOpen(false);
   });
 }
+
+// ----- Tour dialog -----
+
+async function openTour(propertyId) {
+  if (!tourDialog) return;
+  tourTitle.textContent = I18N.translate("tour.title");
+  tourNotice.textContent = "";
+  tourPlaceholder.hidden = false;
+  tourFrame.hidden = true;
+  if (tourModel) tourModel.hidden = true;
+  tourDialog.showModal();
+
+  try {
+    const response = await fetch(`/api/properties/${propertyId}/tour`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) throw new Error("tour_unavailable");
+    const payload = await response.json();
+    const tour = payload.data;
+    tourTitle.textContent = tour.title || I18N.translate("tour.title");
+    if (!tour.tourUrl || tour.tourType === "NONE") {
+      tourNotice.textContent = I18N.translate("tour.notFound");
+      return;
+    }
+    tourPlaceholder.hidden = true;
+    if (tour.isLocalModel && tourModel) {
+      tourModel.src = tour.tourUrl;
+      tourModel.hidden = false;
+      tourNotice.textContent = I18N.translate("tour.modelHint");
+    } else {
+      tourFrame.hidden = false;
+      tourFrame.src = tour.tourUrl;
+      tourNotice.textContent = tourTypeLabel(tour.tourType);
+    }
+  } catch {
+    tourNotice.textContent = I18N.translate("tour.error");
+  }
+}
+
+function closeTour() {
+  if (tourDialog?.open) tourDialog.close();
+}
+
+// ----- Motion / reveal observer -----
+
+function observeMotionElements() {
+  if (!window.IntersectionObserver) {
+    document.querySelectorAll(".motion-reveal, .stagger").forEach((el) => {
+      el.classList.add("is-visible");
+    });
+    return;
+  }
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+  );
+  document.querySelectorAll(".motion-reveal, .stagger").forEach((el) => {
+    el.classList.add("motion-reveal");
+    observer.observe(el);
+  });
+}
+
+// ----- Header scroll state -----
+
+function configureHeaderScroll() {
+  if (!siteHeader) return;
+  const update = () => {
+    const scrolled = window.scrollY > 32;
+    siteHeader.classList.toggle("is-scrolled", scrolled);
+  };
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+}
+
+// ----- Hero entrance -----
+
+function primeHero() {
+  if (!heroSection) return;
+  // Trigger CSS animations on the hero content after first frame.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => heroSection.classList.add("is-ready"));
+  });
+}
+
+// ----- Event wiring -----
 
 document.addEventListener("click", (event) => {
   const target = event.target instanceof Element ? event.target.closest("[data-open-inquiry]") : null;
@@ -418,65 +585,6 @@ tourDialog?.addEventListener("close", () => {
   tourPlaceholder.hidden = false;
 });
 
-async function openTour(propertyId) {
-  if (!tourDialog) return;
-  tourTitle.textContent = "3D-прогулка";
-  tourNotice.textContent = "";
-  tourPlaceholder.hidden = false;
-  tourFrame.hidden = true;
-  if (tourModel) tourModel.hidden = true;
-  tourDialog.showModal();
-
-  try {
-    const response = await fetch(`/api/properties/${propertyId}/tour`, {
-      headers: { Accept: "application/json" },
-    });
-    if (!response.ok) throw new Error("Не удалось загрузить тур.");
-    const payload = await response.json();
-    const tour = payload.data;
-    tourTitle.textContent = tour.title || "3D-прогулка";
-    if (!tour.tourUrl || tour.tourType === "NONE") {
-      tourNotice.textContent = "Для этого объекта пока нет виртуальной прогулки.";
-      return;
-    }
-    tourPlaceholder.hidden = true;
-    if (tour.isLocalModel && tourModel) {
-      tourModel.src = tour.tourUrl;
-      tourModel.hidden = false;
-      tourNotice.textContent = "Перетаскивайте мышью, чтобы осмотреться. Используйте колёсико для приближения.";
-    } else {
-      tourFrame.hidden = false;
-      tourFrame.src = tour.tourUrl;
-      tourNotice.textContent = tourTypeLabels[tour.tourType] || "";
-    }
-  } catch {
-    tourNotice.textContent = "Не удалось загрузить тур. Попробуйте позже.";
-  }
-}
-
-function closeTour() {
-  if (tourDialog?.open) tourDialog.close();
-}
-
-function observeMotionElements() {
-  if (!window.IntersectionObserver) return;
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
-  );
-  document.querySelectorAll(".property-card, .section-label, .approach__steps li, .partners__grid").forEach((el) => {
-    el.classList.add("motion-reveal");
-    observer.observe(el);
-  });
-}
-
 closeInquiryButton?.addEventListener("click", closeInquiry);
 inquiryDialog?.addEventListener("close", () => {
   lastDialogTrigger?.focus();
@@ -499,6 +607,29 @@ document.querySelectorAll("[data-current-year]").forEach((element) => {
   element.textContent = String(new Date().getFullYear());
 });
 
+// ----- Locale change handling -----
+
+document.addEventListener("locale:change", () => {
+  // Re-render the catalog (cards carry formatted prices + translated pills),
+  // re-populate the dropdown, and update the live listing summary.
+  if (availableProperties.length) {
+    catalog?.replaceChildren(...availableProperties.map(createPropertyCard));
+    catalog?.setAttribute("aria-busy", "false");
+    populatePropertySelect(availableProperties);
+    if (listingCount) {
+      const totalItems = availableProperties.length;
+      listingCount.textContent = formatListingSummary(availableProperties.length, totalItems);
+    }
+  } else {
+    // Restore the loading placeholder text in the right locale
+    if (listingCount) listingCount.textContent = I18N.translate("catalog.loading");
+  }
+});
+
+// ----- Bootstrap -----
+
 configureNavigation();
-loadProperties();
+configureHeaderScroll();
 observeMotionElements();
+primeHero();
+loadProperties();
