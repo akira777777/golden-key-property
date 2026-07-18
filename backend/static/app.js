@@ -18,7 +18,7 @@ const I18N = window.GK_I18N || {
 const t = (key, vars) => I18N.format(I18N.translate(key), vars);
 const fmtPrice = (value) => I18N.formatPrice(value);
 const fmtArea = (sqm) => I18N.formatArea(sqm);
-const pluralize = (count, key) => {
+const pluralizeKey = (count, key) => {
   const forms = [
     I18N.translate(`${key}.0`),
     I18N.translate(`${key}.1`),
@@ -185,7 +185,7 @@ async function loadSimilarProperties(propertyId) {
         catalog.replaceChildren(...properties.map(createPropertyCard));
       });
       if (listingCount) {
-        const word = pluralize(properties.length, "word.similar");
+        const word = pluralizeKey(properties.length, "word.similar");
         listingCount.textContent = t("summary.similar", { count: properties.length, word });
       }
     } else {
@@ -419,7 +419,7 @@ function populatePropertySelect(properties) {
 
 function formatListingSummary(shown, total) {
   if (total === 0) return I18N.translate("summary.empty");
-  const listingWord = pluralize(total, "word.object");
+  const listingWord = pluralizeKey(total, "word.object");
   const availability =
     total === 1
       ? I18N.translate("word.availability.singular")
@@ -1114,7 +1114,7 @@ function renderCarousel() {
   if (!detailsCarouselImages.length) {
     const slide = document.createElement("li");
     slide.className = "details-carousel__slide";
-    slide.innerHTML = `<div style="height:100%; display:grid; place-items:center; background:var(--forest); color:#fff;">No photos</div>`;
+    slide.innerHTML = `<div class="carousel-no-photos">No photos</div>`;
     track.appendChild(slide);
     if (prevBtn) prevBtn.hidden = true;
     if (nextBtn) nextBtn.hidden = true;

@@ -89,8 +89,8 @@ def _is_rate_limited(client_ip: str) -> bool:
 def apply_security_headers(response: Any) -> Any:
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "img-src 'self'; "
-        "script-src 'self'; "
+        "img-src 'self' https://images.unsplash.com; "
+        "script-src 'self' https://unpkg.com; "
         "style-src 'self'; "
         "font-src 'self'; "
         "connect-src 'self'; "
