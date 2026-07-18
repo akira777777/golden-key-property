@@ -1,0 +1,10 @@
+{% extends "admin_base.html" %}
+{% block content %}
+  <header class="admin-page-heading"><div><p class="eyebrow">Admin only</p><h1>Lead operations</h1></div><p>Contact data is visible only to administrators. Do not export it to unmanaged systems.</p></header>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>ID</th><th>Contact</th><th>Property / purpose</th><th>Preference</th><th>Message</th><th>Delivery</th></tr></thead>
+      <tbody>{% for lead in leads %}<tr><td>#{{ lead.id }}<span>{{ lead.created_at }}</span></td><td><strong>{{ lead.full_name }}</strong><span>{{ lead.email }}</span><span>{{ lead.phone or 'No phone' }}</span></td><td>{{ lead.property_id }}<span>{{ lead.purpose }}</span><span>{{ lead.budget_usd or 'No budget' }}</span></td><td>{{ lead.preferred_channel }}<span>Marketing: {{ 'yes' if lead.consent_marketing else 'no' }}</span></td><td>{{ lead.message }}</td><td>{{ lead.delivery_status }}<span>{{ lead.delivery_attempts }} attempt(s)</span></td></tr>{% endfor %}</tbody>
+    </table>
+  </div>
+{% endblock %}

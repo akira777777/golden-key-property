@@ -1,0 +1,14 @@
+{% extends "admin_base.html" %}
+{% block content %}
+  <section class="admin-login" aria-labelledby="login-title">
+    <p class="eyebrow">Protected operations</p>
+    <h1 id="login-title">Operator login</h1>
+    <p>Use an environment-configured admin or editor account.</p>
+    {% if error %}<p class="admin-alert" role="alert">{{ error }}</p>{% endif %}
+    <form class="admin-form" method="post" action="/admin/login">
+      <label>Email<input name="email" type="email" autocomplete="username" required /></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required /></label>
+      <button class="button button--dark" type="submit">Log in</button>
+    </form>
+  </section>
+{% endblock %}

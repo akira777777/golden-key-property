@@ -1,0 +1,24 @@
+{% extends "admin_base.html" %}
+{% block content %}
+  <header class="admin-page-heading"><div><p class="eyebrow">Listing editor</p><h1>{{ listing.title }}</h1></div><a class="text-link" href="/properties/{{ listing.slug }}" target="_blank" rel="noopener">Open public page</a></header>
+  {% if request.query_params.get('saved') %}<p class="admin-success" role="status">Listing changes saved and audited.</p>{% endif %}
+  {% if request.query_params.get('mediaSaved') %}<p class="admin-success" role="status">Media metadata saved and audited.</p>{% endif %}
+  <form class="admin-form admin-form--wide" method="post" action="/admin/listings/{{ listing.id }}">
+    <input type="hidden" name="csrfToken" value="{{ session.csrf_token }}" />
+    <label>Title<input name="title" value="{{ listing.title }}" minlength="3" maxlength="240" required /></label>
+    <label class="admin-form__full">Description<textarea name="description" rows="5" minlength="20" maxlength="4000" required>{{ listing.description }}</textarea></label>
+    <label>Price, USD<input name="askingPriceUsd" type="number" min="1" step="1" value="{{ listing.askingPriceUsd }}" required /></label>
+    <label>Status<select name="listingStatus">{% for status in ['ACTIVE', 'PENDING', 'SOLD'] %}<option value="{{ status }}" {% if listing.listingStatus == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label>
+    <label>Readiness<select name="readiness">{% for readiness in ['READY', 'OFF_PLAN'] %}<option value="{{ readiness }}" {% if listing.readiness == readiness %}selected{% endif %}>{{ readiness }}</option>{% endfor %}</select></label>
+    <label>Floor plan URL<input name="floorPlanUrl" value="{{ listing.floorPlanUrl or '' }}" /></label>
+    <label class="admin-form__full">Source label<input name="sourceLabel" value="{{ listing.sourceLabel or '' }}" maxlength="240" required /></label>
+    <label class="admin-check"><input name="published" type="checkbox" {% if listing.published %}checked{% endif %} /> Published</label>
+    <div class="admin-form__actions admin-form__full"><button class="button button--dark" type="submit">Save listing</button><a class="button button--outline" href="/admin">Cancel</a></div>
+  </form>
+
+  <section class="admin-media" aria-labelledby="media-title"><p class="eyebrow">Rights and order</p><h2 id="media-title">Media metadata</h2><p>Publishing approved media requires descriptive alt text, an explicit rights basis, and a traceable source when applicable.</p>
+    <div class="admin-media-grid">
+      {% for item in media %}<form class="admin-form admin-media-card" method="post" action="/admin/media/{{ item.id }}"><input type="hidden" name="csrfToken" value="{{ session.csrf_token }}" /><input type="hidden" name="listingId" value="{{ listing.id }}" /><img src="{{ item.url }}" alt="{{ item.alt_text }}" loading="lazy" /><label>Alt text<input name="altText" value="{{ item.alt_text }}" maxlength="300" required /></label><label>Order<input name="sortOrder" type="number" min="0" value="{{ item.sort_order }}" required /></label><label>Rights basis<input name="rightsBasis" value="{{ item.rights_basis }}" maxlength="240" required /></label><label>Source URL<input name="sourceUrl" type="url" value="{{ item.source_url or '' }}" /></label><button class="button button--outline" type="submit">Save media metadata</button></form>{% endfor %}
+    </div>
+  </section>
+{% endblock %}

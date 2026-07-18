@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="{{ lang | default('en') }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f2b25" />
+    <title>{{ title }}</title>
+    <meta name="description" content="{{ description }}" />
+    <link rel="canonical" href="{{ canonical }}" />
+    <meta property="og:type" content="{{ og_type | default('website') }}" />
+    <meta property="og:title" content="{{ title }}" />
+    <meta property="og:description" content="{{ description }}" />
+    <meta property="og:url" content="{{ canonical }}" />
+    <meta property="og:image" content="{{ og_image }}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ title }}" />
+    <meta name="twitter:description" content="{{ description }}" />
+    <meta name="twitter:image" content="{{ og_image }}" />
+    {% if json_ld %}<script type="application/ld+json">{{ json_ld | safe }}</script>{% endif %}
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/pages.css" />
+    <script src="/static/pages.js" defer></script>
+  </head>
+  <body class="page-body">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="page-header">
+      <a class="brand" href="/" aria-label="Golden Key home">
+        <span class="brand__mark" aria-hidden="true">GK</span>
+        <span class="brand__name">Golden Key</span>
+      </a>
+      <nav class="page-nav" aria-label="Primary navigation">
+        <a href="/properties">Properties</a>
+        <a href="/areas">Areas</a>
+        <a href="/why-dubai">Why Dubai</a>
+      </nav>
+      <a class="button button--dark page-header__cta" href="/?openInquiry=1#catalog">Request a shortlist</a>
+    </header>
+    <main id="main-content">{% block content %}{% endblock %}</main>
+    <footer class="page-footer">
+      <div class="container page-footer__grid">
+        <div>
+          <a class="brand brand--footer" href="/">
+            <span class="brand__mark" aria-hidden="true">GK</span>
+            <span class="brand__name">Golden Key</span>
+          </a>
+          <p>Dubai property catalogue</p>
+        </div>
+        <nav aria-label="Legal">
+          <a href="/privacy">Privacy</a>
+          <a href="/cookies">Cookies</a>
+          <a href="/terms">Terms</a>
+        </nav>
+        <p>Demo listing information must be verified before publishing or making a decision.</p>
+      </div>
+    </footer>
+  </body>
+</html>

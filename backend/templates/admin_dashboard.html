@@ -1,0 +1,12 @@
+{% extends "admin_base.html" %}
+{% block content %}
+  <header class="admin-page-heading"><div><p class="eyebrow">Catalogue operations</p><h1>Listings</h1></div><p>{{ listings | length }} records · Demo records must remain labelled until verified source and rights metadata is supplied.</p></header>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>Listing</th><th>District</th><th>Status</th><th>Published</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        {% for listing in listings %}<tr><td><strong>{{ listing.title }}</strong><span>{{ listing.slug }}</span></td><td>{{ listing.district }}</td><td>{{ listing.listingStatus }}</td><td>{{ 'Yes' if listing.published else 'No' }}</td><td>{{ listing.sourceLabel }}</td><td><a class="text-link" href="/admin/listings/{{ listing.id }}">Edit</a></td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

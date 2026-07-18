@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="page-hero page-hero--compact"><div class="container"><p class="eyebrow eyebrow--light">Area profile · Demo editorial</p><h1>{{ area.name }}</h1><p>{{ area.summary }}</p></div></section>
+  <section class="container page-section">
+    <p class="demo-banner"><strong>Editorial placeholder.</strong> Add verified transport, lifestyle and market information before production publishing.</p>
+    <div class="property-details-grid"><div><h2>Positioning</h2><p>This page intentionally avoids unverified claims. Its catalogue links and price range are derived from demo records.</p></div><div><h2>Demo price range</h2><p>{{ min_price | currency }} — {{ max_price | currency }}</p><a class="button button--dark" href="/properties?district={{ area.name | urlencode }}">Filter the catalogue</a></div></div>
+    <div class="page-card-grid page-card-grid--three">{% for property in properties %}<article class="page-property-card"><a href="/properties/{{ property.slug }}"><img src="{{ property.imageUrl }}" alt="Demonstration image for {{ property.title }}" loading="lazy" /><div class="page-property-card__content"><h2>{{ property.title }}</h2><p>{{ property.askingPriceUsd | currency }}</p></div></a></article>{% endfor %}</div>
+  </section>
+{% endblock %}

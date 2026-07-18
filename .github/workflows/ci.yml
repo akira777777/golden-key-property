@@ -9,6 +9,20 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: golden_key_test
+          POSTGRES_USER: golden_key
+          POSTGRES_PASSWORD: test-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U golden_key -d golden_key_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     defaults:
       run:
         working-directory: ./backend
@@ -26,15 +40,20 @@ jobs:
           pip install -r requirements.txt
 
       - name: Lint with ruff
+        run: ruff check .
+
+      - name: Verify PostgreSQL migrations
+        env:
+          DATABASE_URL: postgresql://golden_key:test-only@127.0.0.1:5432/golden_key_test
         run: |
-          pip install ruff
-          ruff check main.py test_main.py
+          python -m alembic -c alembic.ini upgrade head
+          python seed_demo.py
 
       - name: Run tests
-        run: python -m unittest -v test_main.py
+        run: python -m pytest -q
 
       - name: Check compile
-        run: python -m compileall -q main.py test_main.py
+        run: python -m compileall -q .
 
   docker:
     runs-on: ubuntu-latest

@@ -230,7 +230,7 @@
           <div class="filter-field">
             <label for="bedrooms-filter" data-i18n="filter.bedrooms.label">Спален от</label>
             <select id="bedrooms-filter" name="bedroomsMin" data-filter-bedrooms>
-              <option value="">Любое</option>
+              <option value="" data-i18n="filter.bedrooms.any">Любое</option>
               <option value="1">1+</option>
               <option value="2">2+</option>
               <option value="3">3+</option>
@@ -390,6 +390,30 @@
               </label>
               <input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="32" />
             </div>
+            <div class="form-field form-field--split">
+              <div>
+                <label for="purpose" data-i18n="inquiry.field.purpose">Цель</label>
+                <select id="purpose" name="purpose" required>
+                  <option value="PERSONAL_USE" data-i18n="inquiry.purpose.personal">Для жизни</option>
+                  <option value="INVESTMENT" data-i18n="inquiry.purpose.investment">Инвестиция</option>
+                  <option value="RELOCATION" data-i18n="inquiry.purpose.relocation">Переезд</option>
+                  <option value="OTHER" data-i18n="inquiry.purpose.other">Другое</option>
+                </select>
+              </div>
+              <div>
+                <label for="budgetUsd" data-i18n="inquiry.field.budget">Бюджет, USD</label>
+                <input id="budgetUsd" name="budgetUsd" type="number" inputmode="numeric" min="0" step="50000" placeholder="1500000" />
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="preferredChannel" data-i18n="inquiry.field.channel">Предпочтительный канал связи</label>
+              <select id="preferredChannel" name="preferredChannel" required>
+                <option value="EMAIL">Email</option>
+                <option value="PHONE" data-i18n="inquiry.channel.phone">Телефон</option>
+                <option value="WHATSAPP">WhatsApp</option>
+                <option value="TELEGRAM">Telegram</option>
+              </select>
+            </div>
             <div class="form-field">
               <label for="message" data-i18n="inquiry.field.message">О чём вы хотите поговорить?</label>
               <textarea id="message" name="message" rows="4" minlength="10" maxlength="2000" required></textarea>
@@ -398,6 +422,19 @@
               <input id="consentToContact" name="consentToContact" type="checkbox" required />
               <span data-i18n="inquiry.field.consent">Я согласен(-на), чтобы со мной связались по этому запросу.</span>
             </label>
+            <label class="consent-field" for="consentPrivacy">
+              <input id="consentPrivacy" name="consentPrivacy" type="checkbox" required />
+              <span data-i18n="inquiry.field.privacy">Я ознакомился(-ась) с политикой конфиденциальности и согласен(-на) на обработку данных.</span>
+            </label>
+            <label class="consent-field" for="consentMarketing">
+              <input id="consentMarketing" name="consentMarketing" type="checkbox" />
+              <span data-i18n="inquiry.field.marketing">Можно присылать мне релевантные обновления. Необязательно.</span>
+            </label>
+            <div class="hp-field" aria-hidden="true">
+              <label for="website">Website</label>
+              <input id="website" name="website" type="text" autocomplete="off" tabindex="-1" />
+            </div>
+            <div class="turnstile-field" data-turnstile-container hidden aria-label="Anti-bot verification"></div>
             <p class="form-status" data-form-status aria-live="polite"></p>
             <button class="button button--dark button--full" type="submit">
               <span data-i18n="inquiry.submit">Отправить запрос</span>

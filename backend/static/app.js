@@ -43,6 +43,8 @@ const filterLocation = document.querySelector("[data-filter-location]");
 const filterMinPrice = document.querySelector("[data-filter-min-price]");
 const filterMaxPrice = document.querySelector("[data-filter-max-price]");
 const filterStatus = document.querySelector("[data-filter-status]");
+const filterBedrooms = document.querySelector("[data-filter-bedrooms]");
+const filterSort = document.querySelector("[data-filter-sort]");
 const resetFiltersButton = document.querySelector("[data-reset-filters]");
 const tourDialog = document.querySelector("[data-tour-dialog]");
 const tourTitle = document.querySelector("[data-tour-title]");
@@ -59,7 +61,32 @@ const scrollProgress = document.querySelector("[data-scroll-progress]");
 
 // ----- State -----
 
+const FAVORITES_STORAGE_KEY = "gk.favorites";
+const COMPARE_STORAGE_KEY = "gk.compare";
+
+function loadStoredIds(storageKey, limit = Number.POSITIVE_INFINITY) {
+  try {
+    const value = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    if (!Array.isArray(value)) return [];
+    return [...new Set(value.map(Number).filter(Number.isInteger))].slice(0, limit);
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredIds(storageKey, ids) {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(ids));
+  } catch {
+    // Storage can be unavailable in private or locked-down browsing contexts.
+  }
+}
+
 let availableProperties = [];
+const propertyOptionCache = new Map();
+let favoritePropertyIds = loadStoredIds(FAVORITES_STORAGE_KEY);
+let selectedCompareIds = loadStoredIds(COMPARE_STORAGE_KEY, 3);
+let selectedCompareCache = {};
 let lastDialogTrigger = null;
 let catalogRequestController = null;
 
@@ -219,7 +246,7 @@ function createPropertyCard(property) {
   visual.dataset.propertyId = String(property.id);
   visual.style.cursor = "pointer";
   visual.addEventListener("click", (e) => {
-    if (e.target.closest(".property-card__compare")) return;
+    if (e.target.closest(".property-card__compare, .property-card__favorite")) return;
     openDetails(property);
   });
 
@@ -258,6 +285,19 @@ function createPropertyCard(property) {
 
   compareLabel.append(compareInput, compareSpan);
   visual.append(compareLabel);
+
+  const favoriteButton = document.createElement("button");
+  favoriteButton.type = "button";
+  favoriteButton.className = "property-card__favorite";
+  favoriteButton.setAttribute("data-favorite-property", String(property.id));
+  const isFavorite = favoritePropertyIds.includes(property.id);
+  favoriteButton.setAttribute("aria-pressed", String(isFavorite));
+  favoriteButton.textContent = I18N.translate(isFavorite ? "favorite.remove" : "favorite.add");
+  favoriteButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleFavoriteProperty(property.id);
+  });
+  visual.append(favoriteButton);
 
   const content = document.createElement("div");
   content.className = "property-card__content";
@@ -383,6 +423,38 @@ function showCatalogMessage(message) {
   catalog.replaceChildren(notice);
 }
 
+function showCatalogEmpty(message = I18N.translate("catalog.empty")) {
+  if (!catalog) return;
+  const notice = document.createElement("section");
+  notice.className = "catalog-notice";
+  notice.setAttribute("role", "status");
+  notice.append(
+    createTextElement("h3", "catalog-notice__title", I18N.translate("catalog.emptyTitle")),
+    createTextElement("p", "", message),
+  );
+  catalog.setAttribute("aria-busy", "false");
+  catalog.replaceChildren(notice);
+}
+
+function showCatalogError(message = I18N.translate("catalog.unavailable")) {
+  if (!catalog) return;
+  const notice = document.createElement("section");
+  notice.className = "catalog-notice";
+  notice.setAttribute("role", "alert");
+  notice.append(
+    createTextElement("h3", "catalog-notice__title", I18N.translate("catalog.errorTitle")),
+    createTextElement("p", "", message),
+  );
+  const retry = document.createElement("button");
+  retry.type = "button";
+  retry.className = "button button--dark catalog-notice__action";
+  retry.setAttribute("data-catalog-retry", "");
+  retry.textContent = I18N.translate("catalog.retry");
+  notice.append(retry);
+  catalog.setAttribute("aria-busy", "false");
+  catalog.replaceChildren(notice);
+}
+
 function showCatalogLoading() {
   if (!catalog) return;
   catalog.setAttribute("aria-busy", "true");
@@ -415,6 +487,57 @@ function populatePropertySelect(properties) {
     : "";
 }
 
+function cachePropertyOptions(properties) {
+  properties.forEach((property) => {
+    propertyOptionCache.set(String(property.id), property);
+    if (selectedCompareIds.includes(property.id)) selectedCompareCache[property.id] = property;
+  });
+  populatePropertySelect(Array.from(propertyOptionCache.values()));
+  updateCompareBar();
+}
+
+async function loadInquiryPropertyOptions() {
+  try {
+    const responses = await Promise.all(
+      ["ACTIVE", "PENDING"].map((listingStatus) =>
+        fetch(`/api/properties?pageSize=100&listingStatus=${listingStatus}`, {
+          headers: { Accept: "application/json" },
+        }),
+      ),
+    );
+    if (responses.some((response) => !response.ok)) throw new Error("inquiry_options_unavailable");
+    const payloads = await Promise.all(responses.map((response) => response.json()));
+    cachePropertyOptions(
+      payloads.flatMap((payload) => Array.isArray(payload.data) ? payload.data : []),
+    );
+    const pageParams = new URLSearchParams(window.location.search);
+    if (pageParams.get("openInquiry") === "1") {
+      const requestedPropertyId = Number(pageParams.get("property"));
+      openInquiry({ dataset: { propertyId: Number.isFinite(requestedPropertyId) ? requestedPropertyId : "" } });
+    }
+  } catch {
+    if (!propertyOptionCache.size) populatePropertySelect([]);
+  }
+}
+
+function toggleFavoriteProperty(propertyId) {
+  const id = Number(propertyId);
+  const index = favoritePropertyIds.indexOf(id);
+  if (index === -1) {
+    favoritePropertyIds.push(id);
+    toast.success(I18N.translate("favorite.added"));
+  } else {
+    favoritePropertyIds.splice(index, 1);
+    toast.info(I18N.translate("favorite.removed"));
+  }
+  saveStoredIds(FAVORITES_STORAGE_KEY, favoritePropertyIds);
+  const isFavorite = favoritePropertyIds.includes(id);
+  document.querySelectorAll(`[data-favorite-property="${id}"]`).forEach((button) => {
+    button.setAttribute("aria-pressed", String(isFavorite));
+    button.textContent = I18N.translate(isFavorite ? "favorite.remove" : "favorite.add");
+  });
+}
+
 // ----- Catalog summary (locale-aware) -----
 
 function formatListingSummary(shown, total) {
@@ -443,6 +566,8 @@ function buildPropertyQuery() {
   const minPrice = readPriceFilter(filterMinPrice);
   const maxPrice = readPriceFilter(filterMaxPrice);
   const listingStatus = filterStatus?.value || "ACTIVE";
+  const bedroomsMin = filterBedrooms?.value || "";
+  const sortBy = filterSort?.value || "";
 
   if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
     return { error: I18N.translate("filter.rangeError") };
@@ -452,6 +577,8 @@ function buildPropertyQuery() {
   if (location) params.set("location", location);
   if (minPrice !== null) params.set("minPrice", String(minPrice));
   if (maxPrice !== null) params.set("maxPrice", String(maxPrice));
+  if (bedroomsMin) params.set("bedroomsMin", bedroomsMin);
+  if (sortBy) params.set("sortBy", sortBy);
   return { params };
 }
 
@@ -512,9 +639,9 @@ async function loadProperties() {
         catalog.replaceChildren(...properties.map(createPropertyCard));
       });
     } else {
-      showCatalogMessage(I18N.translate("catalog.empty"));
+      showCatalogEmpty();
     }
-    populatePropertySelect(properties);
+    cachePropertyOptions(properties);
 
     if (listingCount) {
       const totalItems = Number(payload.pagination?.totalItems) || properties.length;
@@ -522,7 +649,7 @@ async function loadProperties() {
     }
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") return;
-    showCatalogMessage(I18N.translate("catalog.unavailable"));
+    showCatalogError();
     if (listingCount) listingCount.textContent = I18N.translate("catalog.unavailableShort");
     if (propertySelect) {
       propertySelect.replaceChildren(new Option(I18N.translate("catalog.unavailableShort"), ""));
@@ -551,7 +678,15 @@ async function submitInquiry(event) {
     email: String(formData.get("email") || "").trim(),
     phone: String(formData.get("phone") || "").trim() || null,
     message: String(formData.get("message") || "").trim(),
+    purpose: String(formData.get("purpose") || "PERSONAL_USE"),
+    budgetUsd: Number(formData.get("budgetUsd")) || null,
+    preferredChannel: String(formData.get("preferredChannel") || "EMAIL"),
     consentToContact: formData.get("consentToContact") === "on",
+    consentPrivacy: formData.get("consentPrivacy") === "on",
+    consentMarketing: formData.get("consentMarketing") === "on",
+    website: String(formData.get("website") || ""),
+    turnstileToken: String(formData.get("cf-turnstile-response") || "") || null,
+    locale: I18N.getLocale(),
   };
 
   submitButton?.setAttribute("disabled", "");
@@ -569,7 +704,8 @@ async function submitInquiry(event) {
     setFormStatus(payload.message || I18N.translate("inquiry.success"), "success");
     toast.success(payload.message || I18N.translate("inquiry.success"));
     inquiryForm.reset();
-    populatePropertySelect(availableProperties);
+    if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
+    populatePropertySelect(Array.from(propertyOptionCache.values()));
   } catch (error) {
     const message = error instanceof Error ? error.message : I18N.translate("inquiry.error");
     setFormStatus(message, "error");
@@ -850,10 +986,44 @@ function configureDialogPolish() {
 
 function primeHero() {
   if (!heroSection) return;
-  // Trigger CSS animations on the hero content after first frame.
+  // Content remains visible by default. This opt-in class only exists while
+  // the enhancement runs, so a JavaScript failure cannot leave a blank hero.
+  heroSection.classList.add("is-priming");
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => heroSection.classList.add("is-ready"));
+    requestAnimationFrame(() => {
+      heroSection.classList.add("is-ready");
+      window.setTimeout(() => heroSection.classList.remove("is-priming", "is-ready"), 900);
+    });
   });
+}
+
+let turnstileWidgetId = null;
+
+async function configureTurnstile() {
+  const container = document.querySelector("[data-turnstile-container]");
+  if (!(container instanceof HTMLElement)) return;
+  try {
+    const response = await fetch("/api/public-config", { headers: { Accept: "application/json" } });
+    if (!response.ok) return;
+    const { turnstileSiteKey } = await response.json();
+    if (!turnstileSiteKey) return;
+    container.hidden = false;
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    script.addEventListener("load", () => {
+      if (!window.turnstile) return;
+      turnstileWidgetId = window.turnstile.render(container, {
+        sitekey: turnstileSiteKey,
+        theme: document.documentElement.dataset.theme === "dark" ? "dark" : "light",
+      });
+    });
+    document.head.appendChild(script);
+  } catch {
+    // The server still enforces verification when configured. Submission will
+    // present its localized API error if the widget cannot load.
+  }
 }
 
 // ----- Event wiring -----
@@ -899,6 +1069,9 @@ document.addEventListener("click", (event) => {
   }
   if (event.target instanceof Element && event.target.closest("[data-compare-clear]")) {
     clearCompareSelection();
+  }
+  if (event.target instanceof Element && event.target.closest("[data-catalog-retry]")) {
+    loadProperties();
   }
 });
 
@@ -1168,8 +1341,6 @@ function goToCarouselSlide(idx) {
 //  Premium Feature: Comparison Dashboard
 // ============================================================
 
-let selectedCompareIds = [];
-let selectedCompareCache = {}; // Cache selected property objects
 const compareBar = document.querySelector("[data-compare-bar]");
 const compareThumbnails = document.querySelector("[data-compare-thumbnails]");
 const compareCount = document.querySelector("[data-compare-count]");
@@ -1204,6 +1375,7 @@ function toggleCompareProperty(property, isChecked) {
   document.querySelectorAll(`.property-card__compare input[value="${propertyId}"]`).forEach(input => {
     input.checked = isChecked;
   });
+  saveStoredIds(COMPARE_STORAGE_KEY, selectedCompareIds);
   updateCompareBar();
 }
 
@@ -1250,6 +1422,7 @@ function clearCompareSelection() {
   document.querySelectorAll(".property-card__compare input").forEach(input => {
     input.checked = false;
   });
+  saveStoredIds(COMPARE_STORAGE_KEY, selectedCompareIds);
   updateCompareBar();
 }
 
@@ -1457,3 +1630,5 @@ configureDialogPolish();
 observeMotionElements();
 primeHero();
 loadProperties();
+loadInquiryPropertyOptions();
+configureTurnstile();

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>{{ title }}</title>
+    <meta name="description" content="{{ description }}" />
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/pages.css" />
+    <link rel="stylesheet" href="/static/admin.css" />
+  </head>
+  <body class="page-body admin-body">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="admin-header">
+      <a class="brand" href="/admin" aria-label="Golden Key operations home"><span class="brand__mark" aria-hidden="true">GK</span><span class="brand__name">Operations</span></a>
+      {% if session %}
+        <nav aria-label="Operations"><a href="/admin">Listings</a>{% if session.role == 'admin' %}<a href="/admin/leads">Leads</a>{% endif %}</nav>
+        <div class="admin-user"><span>{{ session.email }} · {{ session.role }}</span><form method="post" action="/admin/logout"><input type="hidden" name="csrfToken" value="{{ session.csrf_token }}" /><button class="text-link text-link--button" type="submit">Log out</button></form></div>
+      {% endif %}
+    </header>
+    <main id="main-content" class="container admin-main">{% block content %}{% endblock %}</main>
+  </body>
+</html>

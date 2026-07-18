@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="page-hero page-hero--compact"><div class="container"><p class="eyebrow eyebrow--light">Dubai guide</p><h1>Areas</h1><p>Demo-safe area pages linked to the catalogue. Price bands are calculated only from published demo records.</p></div></section>
+  <section class="container page-section">
+    <div class="area-grid">
+      {% for area in areas %}
+        <article class="area-card"><p class="eyebrow">{{ area.count }} demo records</p><h2><a href="/areas/{{ area.slug }}">{{ area.name }}</a></h2><p>{{ area.summary }}</p><p>{{ area.min_price | currency }} — {{ area.max_price | currency }}</p><a class="text-link" href="/areas/{{ area.slug }}">Explore area</a></article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

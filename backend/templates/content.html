@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="page-hero page-hero--compact"><div class="container"><p class="eyebrow eyebrow--light">{{ eyebrow }}</p><h1>{{ heading }}</h1><p>{{ intro }}</p></div></section>
+  <article class="container page-section prose">{{ body | safe }}</article>
+{% endblock %}

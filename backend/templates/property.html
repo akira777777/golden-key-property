@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+  <article>
+    <header class="property-hero">
+      <div class="container property-hero__grid">
+        <div>
+          <p class="eyebrow eyebrow--light">{{ property.district }} · {{ property.propertyType | title }}</p>
+          <h1>{{ property.title }}</h1>
+          <p>{{ property.description }}</p>
+          <p class="demo-banner demo-banner--dark"><strong>Demo data.</strong> This is not a live offer. Verify every fact and media right before publication.</p>
+        </div>
+        <aside class="property-summary">
+          <p class="property-summary__status">{{ property.listingStatus | title }} · {{ property.readiness | replace('_', ' ') | title }}</p>
+          <p class="property-summary__price">{{ property.askingPriceUsd | currency }}</p>
+          <p>{{ price_per_sqm | currency }} / m²</p>
+          <a class="button button--light button--full" data-request-viewing href="/?property={{ property.id }}&openInquiry=1#catalog">Request a viewing</a>
+          <a class="text-link text-link--light" data-request-shortlist href="/?property={{ property.id }}&openInquiry=1#catalog">Request a shortlist</a>
+          <div class="property-user-actions" aria-label="Saved property actions">
+            <button class="button button--outline button--full" type="button" data-page-favorite="{{ property.id }}">Save property</button>
+            <button class="button button--outline button--full" type="button" data-page-compare="{{ property.id }}">Add to compare</button>
+          </div>
+          <p class="property-action-status" data-page-action-status aria-live="polite"></p>
+        </aside>
+      </div>
+    </header>
+
+    <section class="container page-section" aria-labelledby="gallery-title">
+      <p class="eyebrow">Gallery</p>
+      <h2 id="gallery-title">Demonstration media set</h2>
+      <div class="property-gallery">
+        {% for image in gallery %}
+          <a data-gallery-item href="{{ image.url }}" target="_blank" rel="noopener">
+            <img src="{{ image.url }}" alt="{{ image.altText }}" width="1200" height="800" {% if not loop.first %}loading="lazy"{% endif %} />
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="container page-section property-details-grid">
+      <div>
+        <p class="eyebrow">Key facts</p>
+        <h2>Property facts</h2>
+        <dl class="facts-grid">
+          <div><dt>Bedrooms</dt><dd>{{ property.bedrooms }}</dd></div>
+          <div><dt>Bathrooms</dt><dd>{{ property.bathrooms }}</dd></div>
+          <div><dt>Area</dt><dd>{{ property.areaSqM | number }} m²</dd></div>
+          <div><dt>Parking</dt><dd>{{ property.parking }}</dd></div>
+          <div><dt>Year</dt><dd>{{ property.yearBuilt }}</dd></div>
+          <div><dt>Data source</dt><dd>{{ property.sourceLabel }}</dd></div>
+        </dl>
+        <h3>Amenities and notes</h3>
+        <ul class="tag-list">{% for feature in property.features %}<li>{{ feature }}</li>{% endfor %}</ul>
+      </div>
+      <div>
+        <p class="eyebrow">Location</p>
+        <h2>{{ property.location }}</h2>
+        <p>Coordinates: {{ property.latitude }}, {{ property.longitude }}. Distances are indicative straight-line calculations and require verification.</p>
+        <ul class="distance-list">{% for distance in distances %}<li>{{ distance.name }} — {{ distance.km }} km</li>{% endfor %}</ul>
+        <a class="text-link" href="https://www.openstreetmap.org/?mlat={{ property.latitude }}&mlon={{ property.longitude }}#map=13/{{ property.latitude }}/{{ property.longitude }}" target="_blank" rel="noopener">Open map</a>
+      </div>
+    </section>
+
+    <section class="container page-section" data-floor-plan>
+      <p class="eyebrow">Floor plan</p>
+      <h2>Plan and layout</h2>
+      {% if property.floorPlanUrl %}<img class="floor-plan" src="{{ property.floorPlanUrl }}" alt="Floor plan for {{ property.title }}" loading="lazy" />{% else %}<p class="catalog-notice">A verified floor plan is not attached to this demo record.</p>{% endif %}
+    </section>
+
+    {% if property.tourUrl %}
+      <section class="page-section tour-section">
+        <div class="container">
+          <p class="eyebrow eyebrow--light">3D preview</p>
+          <h2>Demonstration model</h2>
+          <p>The model demonstrates the interface and does not represent this listing.</p>
+          <model-viewer src="{{ property.tourUrl }}" alt="Demonstration 3D model, not the actual property" camera-controls auto-rotate></model-viewer>
+        </div>
+      </section>
+    {% endif %}
+
+    <section class="container page-section">
+      <p class="eyebrow">Similar demo records</p>
+      <h2>Compare nearby price points</h2>
+      <div class="page-card-grid page-card-grid--three">
+        {% for item in similar %}<article class="page-property-card"><a href="/properties/{{ item.slug }}"><img src="{{ item.imageUrl }}" alt="Demonstration image for {{ item.title }}" loading="lazy" /><div class="page-property-card__content"><h3>{{ item.title }}</h3><p>{{ item.askingPriceUsd | currency }}</p></div></a></article>{% endfor %}
+      </div>
+    </section>
+  </article>
+  <dialog class="page-lightbox" data-page-lightbox aria-labelledby="page-lightbox-title">
+    <div class="page-lightbox__bar"><h2 id="page-lightbox-title">Property gallery</h2><button class="dialog-close" type="button" data-lightbox-close aria-label="Close gallery">×</button></div>
+    <figure><img data-lightbox-image alt="" /><figcaption data-lightbox-caption></figcaption></figure>
+    <div class="page-lightbox__controls"><button class="button button--outline" type="button" data-lightbox-previous>Previous</button><span data-lightbox-position aria-live="polite"></span><button class="button button--outline" type="button" data-lightbox-next>Next</button></div>
+  </dialog>
+  <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+{% endblock %}
