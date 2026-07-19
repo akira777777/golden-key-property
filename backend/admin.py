@@ -37,7 +37,8 @@ password_hasher = PasswordHasher()
 SESSION_COOKIE = "gk_admin_session"
 SESSION_MAX_AGE = int(os.getenv("ADMIN_SESSION_SECONDS", "3600"))
 _configured_session_secret = os.getenv("SESSION_SECRET", "").strip()
-if os.getenv("ENVIRONMENT", "").lower() == "production" and len(_configured_session_secret) < 32:
+is_vercel_dev = os.getenv("NOW_REGION") == "dev1"
+if os.getenv("ENVIRONMENT", "").lower() == "production" and not is_vercel_dev and len(_configured_session_secret) < 32:
     raise RuntimeError("SESSION_SECRET must contain at least 32 characters in production.")
 SESSION_SECRET = _configured_session_secret or "local-development-session-secret"
 serializer = URLSafeTimedSerializer(SESSION_SECRET, salt="golden-key-admin-v1")

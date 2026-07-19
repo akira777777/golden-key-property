@@ -37,7 +37,8 @@ from sqlalchemy.pool import NullPool
 
 def _database_url() -> tuple[str, bool, Path | None]:
     configured = os.getenv("DATABASE_URL", "").strip()
-    production = os.getenv("ENVIRONMENT", "").lower() == "production" or bool(os.getenv("VERCEL"))
+    is_vercel_dev = os.getenv("NOW_REGION") == "dev1"
+    production = (os.getenv("ENVIRONMENT", "").lower() == "production" or bool(os.getenv("VERCEL"))) and not is_vercel_dev
     if production and not configured:
         raise RuntimeError("DATABASE_URL is required in production; ephemeral SQLite is not supported.")
     if configured:

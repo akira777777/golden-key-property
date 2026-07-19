@@ -1,0 +1,14 @@
+.tmp.driveupload
+.git
+.venv
+venv
+.vercel
+.pytest_cache
+.ruff_cache
+screenshots
+backend/__pycache__
+backend/migrations
+.github
+*.db
+*.sqlite
+*.sqlite3

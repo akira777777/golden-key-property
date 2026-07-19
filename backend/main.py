@@ -33,6 +33,10 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.exc import SQLAlchemyError
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.resolve()))
+
 from database import (
     all_areas_with_stats,
     all_public_listings,
@@ -189,6 +193,8 @@ LEGAL_NOTICE = (
 
 
 def _validate_production_environment() -> None:
+    if os.getenv("NOW_REGION") == "dev1":
+        return
     if os.getenv("ENVIRONMENT", "").lower() != "production" and not os.getenv("VERCEL"):
         return
     missing: list[str] = []

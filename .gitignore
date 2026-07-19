@@ -33,4 +33,7 @@ Thumbs.db
 *.swp
 
 # Temporary Drive Uploads
-.tmp.driveupload/
+.tmp.driveupload/
+.vercel
+
+.vercel
